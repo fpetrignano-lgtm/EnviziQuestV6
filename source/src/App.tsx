@@ -962,6 +962,7 @@ export default function Home(){
                   <div className="trustBar"><span className="trustBarLabel">{t.trustLabel}</span><div className="trustBarTrack"><div className="trustBarFill" style={{width:`${trustScore}%`,background:trustColor}}/></div><span className="trustBarValue" style={{color:trustColor}}>{trustScore}<small>/100</small></span></div>
                   <span className="esgStrTrustDelta">+10</span>
                 </div>
+              </div>
               <p className="trustDisclaimer" style={{marginTop:"12px"}}>{isIt?"ⓘ Il punteggio misura la completezza e la profondità dell'analisi svolta, non una preferenza per una specifica tecnologia o soluzione.":"ⓘ The score measures the completeness and depth of the analysis performed, not a preference for any specific technology or solution."}</p>
             </>
           ):(
