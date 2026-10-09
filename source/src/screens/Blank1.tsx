@@ -43,10 +43,10 @@ export function Blank1({language,profile,setLanguage,setScreen,reset,renderTrust
           <img src="./slide-education-1.png" alt="Education slide 1" style={{width:"100%",height:"100%",objectFit:"contain",borderRadius:"10px",boxShadow:"0 4px 32px rgba(0,0,0,.5)",display:"block"}}/>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:"20px",marginTop:"4px",flexShrink:0}}>
-          <button className="introBackBtn" onClick={()=>setScreen("questIntro")}>← {language==="it"?"Indietro":"Back"}</button>
+          <button className="introBackBtn" onClick={()=>setScreen("welcome")}>← {language==="it"?"Indietro":"Back"}</button>
           <button style={{background:"#1a56db",color:"#fff",border:"none",borderRadius:"8px",padding:"14px 36px",fontWeight:700,cursor:"pointer",fontSize:"16px",letterSpacing:".04em"}} onClick={()=>{setP10SlideIdx(0);setScreen("p10Slideshow");}}>▶ {language==="it"?"Presentazione IT":"Presentation IT"}</button>
           <button style={{background:"#0f3460",color:"#fff",border:"none",borderRadius:"8px",padding:"14px 36px",fontWeight:700,cursor:"pointer",fontSize:"16px",letterSpacing:".04em"}} onClick={()=>{setP10SlideIdx(0);setLanguage("en");setScreen("p10Slideshow");}}>▶ Presentation EN</button>
-          <button className="actionButton approachIntroCta" onClick={()=>setScreen("approach")}>{language==="it"?"Avanti":"Next"} <b>→</b></button>
+          <button className="actionButton approachIntroCta" onClick={()=>setScreen("companySetup")}>{language==="it"?"Avanti":"Next"} <b>→</b></button>
         </div>
       </section>
       <div style={{position:"absolute",bottom:0,left:0,right:0,height:"4px",background:"#39efb4",zIndex:100}}/>
@@ -143,7 +143,7 @@ export function IlTuoReport({language,profile,setLanguage,setScreen,reset,render
             </button>
           </>}
 
-          <button className="actionButton approachIntroCta" onClick={()=>setScreen("esgStrategist")}>{isIt?"Avanti":"Next"} <b>→</b></button>
+          <button className="actionButton approachIntroCta" onClick={()=>setScreen("reportSlideshow")}>{isIt?"Avanti":"Next"} <b>→</b></button>
         </div>
       </section>
       <div style={{position:"absolute",bottom:0,left:0,right:0,height:"4px",background:"#3b82f4",zIndex:100}}/>

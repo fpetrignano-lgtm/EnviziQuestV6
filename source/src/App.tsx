@@ -24,7 +24,7 @@ import type { ReportData } from "./screens/ReportSlideshow";
 import { ApproachDataCopyScreen, PrioritiesScreen, PriorityDataScreen, PriorityMatrixScreen } from "./screens/PriorityScreens";
 import { MissionFlowScreen } from "./screens/MissionFlowScreens";
 
-const ALL_SCREENS:Screen[]=["cover","onboarding","welcome","approach","chapterMap","sectionIntro1","questIntro","blank1","p10Slideshow","approachIntro","approachReport","intro","separatorNext","approachStepsCopy","sectionIntro2","companySetup","company","company2","sectionIntro3","priorities","approachDataCopy","priorityData","priorityMatrix","ilTuoReport","reportSlideshow","reportSlideshowPng","chapterOneSummary","esgStrategist","challengeSeparator1","missionCard1","introCopy","bridge","missions","briefing","missionIntro","introCopy2","asis","compare","trust","tobe","negative","success","milestone","dataFoundation","dfConclusion","challengeComplete1","challengeSeparator2","missionCard2","energyFoundation","energyConclusion","challengeComplete2","challengeSeparator3","missionCard3","supplyFoundation","supplyConclusion","challengeComplete3","challengeSeparator4","missionCard4","planningFoundation","planningConclusion","challengeComplete4","challengeSeparator5","missionCard5","frameworkFoundation","frameworkConclusion","challengeComplete5","challengeSeparator6","missionCard6","reportingFoundation","reportingConclusion","challengeComplete6","summary","sectionOutro","nextStep","thankYou"];
+const ALL_SCREENS:Screen[]=["cover","onboarding","welcome","blank1","companySetup","company","company2","priorities","priorityData","priorityMatrix","ilTuoReport","reportSlideshow","reportSlideshowPng"];
 
 export default function Home(){
   const [language,setLanguage]=useState<Language>("it"); const [profile,setProfile]=useState<Profile|null>(null); const [screen,setScreenState]=useState<Screen>("cover"); const [screenHistory,setScreenHistory]=useState<Screen[]>([]); const [priorities,setPriorities]=useState<Priority[]>(defaultPriorities); const [selectedMission,setSelectedMission]=useState(0); const [negativeChoice,setNegativeChoice]=useState<"form"|"postpone">("form"); const [pendingOutcome,setPendingOutcome]=useState<Outcome>("positive"); const [missionParameters,setMissionParameters]=useState<Record<number,string[]>>({}); const [missionOutcomes,setMissionOutcomes]=useState<Record<number,Outcome>>({}); const [missionOrder,setMissionOrder]=useState<number[]>([0,3,5,2,1,4]); const [trustScore,setTrustScore]=useState(30); const [approachBiz,setApproachBiz]=useState(""); const [approachData,setApproachData]=useState(""); const [contactEmail,setContactEmail]=useState(""); const [asIsRatings,setAsIsRatings]=useState<Record<number,("alto"|"medio"|"basso")[]>>({});
@@ -379,29 +379,26 @@ export default function Home(){
   useEffect(()=>{localStorage.removeItem("envizi-quest-roadmap");localStorage.removeItem("envizi-quest-mission-order");localStorage.removeItem("envizi-quest-mission-parameters");localStorage.removeItem("envizi-quest-trust-score");localStorage.removeItem("envizi-quest-priorities");localStorage.removeItem("envizi-quest-profile");localStorage.removeItem("envizi-quest-mission");},[]);
   const setScreen=(next:Screen)=>{if(next===screen)return;setScreenHistory(history=>[...history,screen]);setScreenState(next)};
   const goBack=()=>{if(!screenHistory.length)return;setScreenState(screenHistory[screenHistory.length-1]);setScreenHistory(screenHistory.slice(0,-1))};
-  const start=()=>{if(!profile)return;localStorage.setItem("envizi-quest-profile",JSON.stringify({language,profile}));setScreen("chapterMap")};
+  const start=()=>{if(!profile)return;localStorage.setItem("envizi-quest-profile",JSON.stringify({language,profile}));setScreen("welcome")};
   const reset=()=>{setScreenState("onboarding");setScreenHistory([]);setProfile(null);setTrustScore(30);localStorage.removeItem("envizi-quest-trust-score")};
   // Clic sul marchio: se il profilo è già creato → torna alla mappa capitoli senza perdere dati
-  const goToBrand=()=>{if(profile)setScreen("chapterMap");else reset();};
+  const goToBrand=()=>reset();
   useEffect(()=>{let button=document.getElementById("envizi-global-back") as HTMLButtonElement|null;if(!button){button=document.createElement("button");button.id="envizi-global-back";button.className="globalBack";button.type="button";document.body.appendChild(button)}button.innerHTML=`← <span>${language==="it"?"Indietro":"Back"}</span>`;button.disabled=!screenHistory.length;button.setAttribute("aria-label",language==="it"?"Torna alla pagina precedente":"Go back one page");const handleBack=()=>goBack();button.addEventListener("click",handleBack);return()=>button?.removeEventListener("click",handleBack)},[language,screenHistory]);
   useEffect(()=>()=>{document.getElementById("envizi-global-back")?.remove()},[]);
+  // Pulsante globale Avanti (dx): segue l'ordine di ALL_SCREENS
   useEffect(()=>{
-    let btn=document.getElementById("envizi-global-chaptermap") as HTMLButtonElement|null;
-    if(!btn){
-      btn=document.createElement("button");
-      btn.id="envizi-global-chaptermap";
-      btn.className="globalChapterMap";
-      btn.type="button";
-      document.body.appendChild(btn);
-    }
-    btn.innerHTML=`🗺 <span>${language==="it"?"Indice":"Map"}</span>`;
-    btn.style.display=(screen==="chapterMap"||screen==="cover"||screen==="welcome"||screen==="onboarding")?"none":"inline-flex";
-    btn.setAttribute("aria-label",language==="it"?"Torna alla ChapterMap / Indice":"Return to ChapterMap / Index");
-    const handleChapterMap=()=>setScreen("chapterMap");
-    btn.addEventListener("click",handleChapterMap);
-    return()=>btn?.removeEventListener("click",handleChapterMap);
-  },[language,screen]);
-  useEffect(()=>()=>{document.getElementById("envizi-global-chaptermap")?.remove()},[]);
+    let btn=document.getElementById("envizi-global-next") as HTMLButtonElement|null;
+    if(!btn){btn=document.createElement("button");btn.id="envizi-global-next";btn.className="globalNext";btn.type="button";document.body.appendChild(btn)}
+    const idx=ALL_SCREENS.indexOf(screen);
+    const next=idx>=0&&idx<ALL_SCREENS.length-1?ALL_SCREENS[idx+1]:null;
+    btn.innerHTML=`<span>${language==="it"?"Avanti":"Next"}</span> →`;
+    btn.disabled=!next||(!profile&&next!=="onboarding"&&next!=="welcome");
+    const handleNext=()=>{if(next)setScreen(next)};
+    btn.addEventListener("click",handleNext);
+    return()=>btn?.removeEventListener("click",handleNext);
+  },[language,screen,profile]);
+  useEffect(()=>()=>{document.getElementById("envizi-global-next")?.remove()},[]);
+
   const currentPageNum=ALL_SCREENS.indexOf(screen)+1||1;
   useEffect(()=>{let el=document.getElementById("envizi-page-num");if(!el){el=document.createElement("div");el.id="envizi-page-num";el.className="pageNum";document.body.appendChild(el)}el.textContent=`${String(currentPageNum).padStart(2,"0")} · ${screen}`;el.style.display="flex";},[screen,currentPageNum]);
   useEffect(()=>()=>{document.getElementById("envizi-page-num")?.remove()},[]);
@@ -742,9 +739,7 @@ export default function Home(){
   ]);
   const trustTotalW=trustSteps.length*(TRUST_BAR_W+TRUST_BAR_GAP)-TRUST_BAR_GAP+TRUST_SVG_PAD_X*2;
 
-  if(screen==="intro"&&profile)return <main className="introScreen" style={{position:"relative"}}>{introZoomWarn&&<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(7,18,15,.82)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setIntroZoomWarn(false)}><div style={{background:"#0d1f19",border:"1px solid rgba(57,239,180,.3)",borderRadius:"14px",padding:"28px 32px",maxWidth:"380px",width:"90vw",textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.6)"}} onClick={e=>e.stopPropagation()}><p style={{margin:"0 0 8px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".14em",textTransform:"uppercase",color:"#39efb4"}}>{language==="it"?"Attenzione":"Warning"}</p><p style={{margin:"0 0 20px",fontSize:"15px",color:"#e8f5ef",lineHeight:1.5}}>{language==="it"?"Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?":"The display ratio is optimised for this screen. Are you sure you want to change the zoom?"}</p><div style={{display:"flex",gap:"10px",justifyContent:"center"}}><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.35)",background:"transparent",color:"#39efb4",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setIntroZoomWarn(false)}>{language==="it"?"Annulla":"Cancel"}</button><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid #c84040",background:"rgba(200,64,64,.12)",color:"#ff8080",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={dismissZoom}>{language==="it"?"Continua comunque":"Continue anyway"}</button></div></div></div>}<div className="welcomeBlueBar"/><header className="missionNav"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> YOUR CHALLENGE</div><div className="introNavRight"><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div></header><section className="characterStage"><img src={`./characters/${profile}-neutral.png`} alt={name}/><div className="characterTag characterTagRaised"><span className="statusDot"/><div><small>ESG MANAGER</small><strong>{name}</strong></div></div></section><section className="introBody"><p className="eyebrow">{t.introKicker}</p><h1>{t.introTitle}</h1><p className="storyText">{t.introBody}</p><div className="introTrustBox"><p className="introScoreLabel">{t.introScoreLabel}</p>{renderTrustBar()}</div><div style={{marginTop:"18px"}}><p className="eyebrow" style={{letterSpacing:".18em",fontSize:"11px",marginBottom:"8px"}}>{language==="it"?"BADGE SBLOCCATO":"BADGE UNLOCKED"}</p><img src="./immagine/badge/badge-esg-study.svg" alt="ESG Study badge" style={{maxWidth:"420px",width:"100%",height:"auto",display:"block",margin:0}}/></div><div className="introCtaRow"><button className="actionButton questLaunchBtn" onClick={()=>setScreen("separatorNext")}>{t.introStart}<b>→</b><span className="mouseDemo questMouse" aria-hidden="true"><img src="./hand-pointer.svg" alt=""/></span></button></div></section><div className="welcomeBlueBar" style={{background:"#39efb4"}}/></main>;
 
-  if(screen==="approach")return <main className="approachScreen" style={{position:"relative"}}>{approachZoomWarn&&<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(7,18,15,.82)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setApproachZoomWarn(false)}><div style={{background:"#0d1f19",border:"1px solid rgba(57,239,180,.3)",borderRadius:"14px",padding:"28px 32px",maxWidth:"380px",width:"90vw",textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.6)"}} onClick={e=>e.stopPropagation()}><p style={{margin:"0 0 8px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".14em",textTransform:"uppercase",color:"#39efb4"}}>{language==="it"?"Attenzione":"Warning"}</p><p style={{margin:"0 0 20px",fontSize:"15px",color:"#e8f5ef",lineHeight:1.5}}>{language==="it"?"Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?":"The display ratio is optimised for this screen. Are you sure you want to change the zoom?"}</p><div style={{display:"flex",gap:"10px",justifyContent:"center"}}><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.35)",background:"transparent",color:"#39efb4",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setApproachZoomWarn(false)}>{language==="it"?"Annulla":"Cancel"}</button><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid #c84040",background:"rgba(200,64,64,.12)",color:"#ff8080",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={dismissZoom}>{language==="it"?"Continua comunque":"Continue anyway"}</button></div></div></div>}<div className="welcomeBlueBar"/><header className="missionNav"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> PEOPLE & DATA</div><div className="introNavRight"><button className="introBackBtn" onClick={()=>goBack()}>← {language==="it"?"Indietro":"Back"}</button><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div></header><section className="approachBody"><div className="approachTopTitle"><h1>{t.approachTitle}</h1></div><div className="approachLeft approachVisual"><div className="approachPeopleIntro"><small className="approachSectionLabel">{language==="it"?"FILONE 01 · PERSONE":"TRACK 01 · PEOPLE"}</small><h2>{language==="it"?"agire sul cambiamento con le persone: coinvolgimento, formazione, responsabilizzazione":"acting on change with people: engagement, training, accountability"}</h2></div><img className="approachTeamImage" src="./approach-team-scene.png" alt={language==="it"?"Team ESG che discute una dashboard di sostenibilità":"ESG team discussing a sustainability dashboard"}/></div><div className="approachRight"><div className="approachDataIntro"><small className="approachSectionLabel">{language==="it"?"FILONE 02 · DATI":"TRACK 02 · DATA"}</small><h2>{language==="it"?"agire sulla complessità di oltre 500 tipi di dati ESG, energia, gas, acqua, rifiuti, social...":"acting on the complexity of 500+ ESG data types: energy, gas, water, waste, social..."}</h2></div><img className="approachDataImage" src="./approach-data-scene.png" alt={language==="it"?"Dashboard e dati ESG":"ESG data dashboard"}/></div><div className="approachBottomAction"><p className="approachRoleTitle">{language==="it"?"Il ruolo di una piattaforma ESG reporting e performance management":"The role of an ESG reporting and performance management platform"}</p><div className="approachKeywordsRow"><div className="approachKwBox"><small className="approachSectionLabel">{language==="it"?"FILONE 01 · PERSONE":"TRACK 01 · PEOPLE"}</small><div className="approachKwList"><span>User Interface</span><span>AI User Assistant</span><span>Documentazione utente</span><span>Materiale Formazione</span></div></div><div className="approachKwBox"><small className="approachSectionLabel">{language==="it"?"FILONE 02 · DATI":"TRACK 02 · DATA"}</small><div className="approachKwList"><span>ESG Data Foundation</span><span>ESG Reporting</span><span>Tracciabilità del dato</span><span>Automazione e Integrazione</span><span>Analytics</span><span>Sicurezza</span><span>Aggiornamenti Compliance</span></div></div></div><button className="actionButton" onClick={()=>setScreen("approachIntro")}>{t.approachQuestCta}</button></div></section><div className="welcomeBlueBar" style={{background:"#39efb4"}}/></main>;
 
   const CHAPTER_MAP_ITEMS:{labelIt:string,labelEn:string,screen:Screen,icon:string}[]=[
     {labelIt:"① Introduzione",labelEn:"① Introduction",screen:"sectionIntro1",icon:"①"},
@@ -768,33 +763,21 @@ export default function Home(){
   ];
   const companyDone = !!(companyName.trim() || siteTotalAll() > 0 || approachDataCopySeen || Object.keys(needRelevance).length > 0 || Object.keys(needCriticality).length > 0);
   const dataDone = !!(Object.keys(needRelevance).length > 0 || Object.keys(needCriticality).length > 0 || Object.keys(missionOutcomes).length > 0);
-  if(screen==="chapterMap")return <ChapterMap language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} name={name} missionOrder={missionOrder} missionOutcomes={missionOutcomes} trustScore={calculatedTrustScore} companyDone={companyDone} dataDone={dataDone}/>;
 
   // ── SLIDE DI TRANSIZIONE SEZIONI ──────────────────────────────────────────
-  if(screen==="sectionIntro1"&&profile)return <SectionIntroSlide language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} num={1} labelIt="Introduzione" labelEn="Introduction" titleIt="Il percorso Envizi Quest" titleEn="The Envizi Quest journey" subIt="Come funziona, cosa scoprirai e come costruire la tua roadmap ESG" subEn="How it works, what you'll discover and how to build your ESG roadmap" nextScreen="questIntro" frozen/>;
 
-  if(screen==="sectionIntro2"&&profile)return <SectionIntroSlide language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} num={2} labelIt="Obiettivi e dati" labelEn="Objectives and data" titleIt="Partiamo dagli obiettivi della tua azienda" titleEn="Let's start from your company's objectives" subIt="Priorità di business ESG e profilo aziendale" subEn="ESG business priorities and company profile" nextScreen="companySetup" frozen/>;
 
-  if(screen==="sectionIntro3"&&profile)return <SectionIntroSlide language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} num={3} labelIt="Sfide di dati" labelEn="Data challenges" titleIt="Il secondo filone è agire sulle sfide di dati" titleEn="The second track is acting on data challenges" subIt="Esigenze, criticità e matrice di priorità" subEn="Needs, criticalities and priority matrix" nextScreen="approachDataCopy"/>;
 
-  if(screen==="sectionOutro"&&profile)return <SectionIntroSlide language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} num={"✓" as any} labelIt="Prossimi passi" labelEn="Next steps" titleIt="Porta i tuoi risultati al livello successivo" titleEn="Take your results to the next level" subIt="Demo, Proof of Concept e Business Value Assessment" subEn="Demo, Proof of Concept and Business Value Assessment" nextScreen="nextStep"/>;
 
-  if(screen==="questIntro"&&profile)return <QuestIntro language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} name={name}/>;
 
 
   if(screen==="blank1")return <Blank1 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} p10SlideIdx={p10SlideIdx} setP10SlideIdx={setP10SlideIdx} P10_SLIDES={P10_SLIDES}/>;
 
-  if(screen==="p10Slideshow"&&profile)return <P10Slideshow language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} p10SlideIdx={p10SlideIdx} setP10SlideIdx={setP10SlideIdx} P10_SLIDES={P10_SLIDES}/>;
 
 
-  if(screen==="approachIntro"&&profile)return <ApproachIntro language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} t={t}/>;
-  if(screen==="approachReport"&&profile)return <ApproachReport language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} t={t}/>;
-  if(screen==="separatorNext"&&profile)return <main className="questIntroScreen" style={{position:"relative"}}>{separatorNextZoomWarn&&<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(7,18,15,.82)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setSeparatorNextZoomWarn(false)}><div style={{background:"#0d1f19",border:"1px solid rgba(57,239,180,.3)",borderRadius:"14px",padding:"28px 32px",maxWidth:"380px",width:"90vw",textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.6)"}} onClick={e=>e.stopPropagation()}><p style={{margin:"0 0 8px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".14em",textTransform:"uppercase",color:"#39efb4"}}>{language==="it"?"Attenzione":"Warning"}</p><p style={{margin:"0 0 20px",fontSize:"15px",color:"#e8f5ef",lineHeight:1.5}}>{language==="it"?"Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?":"The display ratio is optimised for this screen. Are you sure you want to change the zoom?"}</p><div style={{display:"flex",gap:"10px",justifyContent:"center"}}><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.35)",background:"transparent",color:"#39efb4",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setSeparatorNextZoomWarn(false)}>{language==="it"?"Annulla":"Cancel"}</button><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid #c84040",background:"rgba(200,64,64,.12)",color:"#ff8080",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={dismissZoom}>{language==="it"?"Continua comunque":"Continue anyway"}</button></div></div></div>}<div className="welcomeBlueBar"/><header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> LA QUEST</div>{renderTrustBar()}<div className="introNavRight"><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div></header><section className="questIntroBody"><img src={`./characters/${profile}-neutral.png`} className="questIntroProfileImg" alt={name}/><h1 className="questIntroTitle">{language==="it"?"Partiamo dalla tua azienda":"Let's start from your company"}</h1><button className="actionButton questIntroCta" onClick={()=>setScreen("companySetup")}>{t.questIntroCta}<b>→</b></button></section><div className="welcomeBlueBar" style={{background:"#39efb4"}}/></main>;
-  if(screen==="approachStepsCopy"&&profile)return <main className="approachIntroScreen" style={{position:"relative"}}>{approachStepsCopyZoomWarn&&<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(7,18,15,.82)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setApproachStepsCopyZoomWarn(false)}><div style={{background:"#0d1f19",border:"1px solid rgba(57,239,180,.3)",borderRadius:"14px",padding:"28px 32px",maxWidth:"380px",width:"90vw",textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.6)"}} onClick={e=>e.stopPropagation()}><p style={{margin:"0 0 8px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".14em",textTransform:"uppercase",color:"#39efb4"}}>{language==="it"?"Attenzione":"Warning"}</p><p style={{margin:"0 0 20px",fontSize:"15px",color:"#e8f5ef",lineHeight:1.5}}>{language==="it"?"Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?":"The display ratio is optimised for this screen. Are you sure you want to change the zoom?"}</p><div style={{display:"flex",gap:"10px",justifyContent:"center"}}><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.35)",background:"transparent",color:"#39efb4",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setApproachStepsCopyZoomWarn(false)}>{language==="it"?"Annulla":"Cancel"}</button><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid #c84040",background:"rgba(200,64,64,.12)",color:"#ff8080",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={dismissZoom}>{language==="it"?"Continua comunque":"Continue anyway"}</button></div></div></div>}<div className="welcomeBlueBar"/><header className="missionNav"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> IL PERCORSO</div><div className="introNavRight"><button className="introBackBtn" onClick={()=>goBack()}>← {language==="it"?"Indietro":"Back"}</button><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div></header><section className="approachIntroBody approachIntroBodyWithImg"><div className="approachIntroLeft"><h1 className="approachIntroTitle">{t.approachStepsTitle}</h1><div className="approachIntroText">{(t.approachStepsBody as string[]).map((para,i)=><p key={i}>{para}</p>)}</div></div><div className="approachIntroRight"><img src="./step-1.svg" className="approachIntroStepBadge" alt="Step 1"/><img src="./logica-obiettivi.png" className="approachIntroImg" alt="Obiettivi di business ESG"/><p className="approachIntroImgCaption approachIntroImgCaptionSm">{t.approachStepsExample as string}</p><button className="actionButton approachIntroCta" onClick={()=>setScreen("priorities")}>{t.approachStepsCta}<b>→</b></button></div></section><div className="welcomeBlueBar" style={{background:"#39efb4"}}/></main>;
 
   const renderMissionHub=(isPreview=false)=>{const completed=Object.keys(missionOutcomes).length;const foundationDone=!!missionOutcomes[0];const hubNeeds=isPreview?needsByMissionHubFocused:needsByMissionHub;return <main className="missionMenuScreen"><header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> MISSION HUB</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header><section className="missionMenuIntro"><div><p className="eyebrow">{t.roadmapKicker}</p><h1>{t.roadmapTitle}</h1><p>{t.roadmapIntro}</p><div className="roadmapProgress"><span style={{width:`${completed*(100/6)}%`}}/><b>{t.roadmapProgress}: {completed}/6</b></div>{isPreview&&<button className="actionButton rpPreviewCta" onClick={()=>setScreen("challengeSeparator1")}>{language==="it"?"Avanti →":"Next →"}</button>}{isPreview&&<div className="needsTierLegend"><span style={{color:"#ff4d4d"}}>⬡ {language==="it"?"Alta":"High"}</span><span style={{color:"#7dd3fc"}}>⬡ {language==="it"?"Media":"Medium"}</span><span style={{color:"#9ca3af"}}>⬡ {language==="it"?"Bassa":"Low"}</span></div>}{!isPreview&&<button className="actionButton rpPreviewCta" style={{marginTop:"12px"}} onClick={()=>setScreen("dataFoundation")}>{language==="it"?"Avanti →":"Next →"}</button>}{!isPreview&&completed===6&&<button className="summaryCta" onClick={()=>setScreen("summary")}>{t.summaryCta}<b>→</b></button>}</div><div className="priorityPersona"><img src={`./characters/${profile}-neutral.png`} alt={name}/><span>{name}<small>ESG MANAGER</small></span></div></section><section className="missionCards roadmapCards">{missionOrder.map((missionIndex,position)=>{const m=missionCatalog[missionIndex];const outcome=missionOutcomes[missionIndex];const isLocked=!isPreview&&(!foundationDone&&missionIndex!==0);const isStartHere=!isPreview&&!foundationDone&&missionIndex===0;return <article key={m.value} className={`missionCard ${missionIndex===0?"missionCardFoundation":""} ${outcome?`completed ${outcome}`:""}${isLocked?" missionCardLocked":""}`}><button className="missionCardOpen" disabled={isLocked||isPreview} onClick={()=>{if(isLocked||isPreview)return;setSelectedMission(missionIndex);localStorage.setItem("envizi-quest-mission",String(missionIndex+1));setScreen("briefing")}}>{(()=>{const raw=hubNeeds.find(([mi])=>mi===missionIndex)?.[1]||[];const needs=missionIndex===0?[{id:"__foundation__",label:language==="it"?"Una data foundation solida e tracciabile":"A solid and traceable data foundation"},...raw]:raw;const needsLabel=language==="it"?"Esigenze specifiche":"Specific needs";const legendHigh=language==="it"?"Alta":"High";const legendMid=language==="it"?"Media":"Medium";const legendLow=language==="it"?"Bassa":"Low";return <><div className="missionCardChallengeBox"><div className="missionCardTop"><span>{String(position+1).padStart(2,"0")}</span><i>{outcome?"✓":m.icon}</i></div><h2>{language==="it"?m.it:m.en}</h2></div><div className="missionCardNeedsBox"><small className="missionCardNeedsLabel">{needsLabel}</small>{needs.length>0?needs.map(n=>{const prioIdx=priorities.indexOf((n as any).priority);const relMax=prioIdx===0?10:prioIdx===1?8:prioIdx===2?6:4;const rel=Math.min(needRelevance[n.id]??Math.round(relMax/2),relMax);const relNorm=Math.round((rel/relMax)*10);const crit=needCriticality[n.id]??5;const cap=needIdToCapability[n.id];const capLabel=cap?(language==="it"?cap.it:cap.en):null;const tier=relNorm>7&&crit>7?"red":relNorm>4&&relNorm<=7&&crit>4&&crit<=7?"yellow":relNorm>4||crit>4?"yellow":"green";const tierColor=tier==="red"?"#ff4d4d":tier==="yellow"?"#7dd3fc":"#9ca3af";return <span key={n.id} className="missionCardNeed"><span className="missionCardNeedHeader"><b className="missionCardNeedRank" style={{color:tierColor}}>{("rank" in n)?String((n as any).rank).padStart(2,"0"):""}</b><b className="missionCardNeedName" style={{color:tierColor}}>⬡ {n.label}</b><span className="missionCardNeedRC" style={{color:tierColor}}>R:{relNorm} C:{crit}</span></span>{capLabel&&<span className="missionCardNeedCap" style={{color:tierColor,opacity:.8}}>{capLabel}</span>}</span>}):<span className="missionCardNeed">—</span>}</div></>;})()}{isLocked&&<div className="missionCardLockedOverlay"><span>⊘</span><small>{t.missionLocked}</small></div>}{isStartHere&&<div className="missionCardStartHere"><span>{t.missionStartHere}</span><b>→</b></div>}{outcome&&<div className="missionImpact"><div><small>{t.adoptedDecision}</small><strong>{decisionLabel(missionIndex,outcome)}</strong></div><div><small>{t.expectedImpact}</small><p>{outcomeLabel(missionIndex,outcome)}</p></div></div>}<div className="missionCardBottom"><small>{outcome?`${position+1}/5 · ROADMAP`:isLocked?"🔒":""}</small><b>{outcome?t.missionReview:""}</b></div>{isLocked&&<div style={{position:"absolute",inset:0,borderRadius:"inherit",background:"rgba(7,18,15,0.82)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:"8px",padding:"16px",textAlign:"center",pointerEvents:"none",zIndex:5}}><span style={{fontSize:"22px"}}>🔒</span><p style={{margin:0,fontSize:"clamp(11px,0.9vw,13px)",color:"#b5c9c1",lineHeight:1.4,fontWeight:500}}>{language==="it"?"Completa prima la sfida Data Foundation: è il prerequisito abilitante per tutte le missioni operative.":"Complete the Data Foundation challenge first: it is the enabling prerequisite for all operational missions."}</p></div>}</button></article>})}</section></main>};
 
-  if(screen==="roadmapPreview"&&profile)return renderMissionHub(true);
 
   // ── buildPptxData — riutilizzato da ilTuoReport e chapterOneSummary ─────────
   const buildPptxData=(isIt:boolean)=>{
@@ -894,194 +877,7 @@ export default function Home(){
 
   if(screen==="ilTuoReport"&&profile)return <IlTuoReport language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} p10SlideIdx={p10SlideIdx} setP10SlideIdx={setP10SlideIdx} P10_SLIDES={P10_SLIDES} onDownloadPptx={(lang)=>generateTemplatePptx(buildPptxData(lang==="it"))} onRefreshAndView={refreshAndViewReport}/>;
 
-  if(screen==="chapterOneSummary"&&profile){
-    const isIt=language==="it";
-    const pptxData=buildPptxData(isIt);
-    return <main style={{display:"flex",flexDirection:"column",height:"1080px",background:"var(--bg)",overflow:"hidden",position:"relative"}}>
-      <div style={{position:"absolute",top:0,left:0,right:0,height:"4px",background:"#3b82f4",zIndex:100}}/>
-      <header className="missionNav">
-        <button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
-        <div className="missionProgress"><span className="activeDot"/> {isIt?"IL TUO REPORT INIZIALE":"YOUR INITIAL REPORT"}</div>
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
-      </header>
-      <section style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"12px",padding:"12px 0 20px",width:"100%",flex:1,minHeight:0}}>
-        <div style={{position:"relative",width:"100%",flex:1,minHeight:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-          <img src="./logica-report-finale.png" alt={isIt?"Anteprima report":"Report preview"} style={{width:"100%",height:"100%",objectFit:"contain",display:"block"}}/>
-        </div>
-        <div style={{display:"flex",alignItems:"center",gap:"16px",marginTop:"4px",flexShrink:0}}>
-          <button className="actionButton" onClick={()=>generateTemplatePptx(pptxData)}>↓ {isIt?"Scarica Report":"Download Report"}</button>
-          <button className="actionButton" onClick={()=>setScreen("esgStrategist")}>{isIt?"Avanti →":"Next →"}</button>
-        </div>
-      </section>
-      <div style={{position:"absolute",bottom:0,left:0,right:0,height:"4px",background:"#3b82f4",zIndex:100}}/>
-    </main>;
-  }
 
-  if(screen==="esgStrategist"&&profile){
-    const isIt=language==="it";
-    // La matrice è stata compilata se almeno un need ha un valore di rilevanza o criticità impostato
-    const matrixDone=Object.keys(needRelevance).length>0||Object.keys(needCriticality).length>0;
-    // Al primo render con matrice compilata, sblocca e aggiungi +10 una sola volta
-    if(matrixDone&&!esgStrategistUnlocked){
-      setEsgStrategistUnlocked(true);
-      const next=Math.min(100,trustScore+10);
-      setTrustScore(next);
-      localStorage.setItem("envizi-quest-trust-score",String(next));
-    }
-    const trustColor=trustScore>=50?"#39efb4":trustScore>=20?"#ffc07c":"#ff7777";
-    return <main className="esgStrScreen" style={{position:"relative"}}>
-      {esgStrategistZoomWarn&&<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(7,18,15,.82)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setEsgStrategistZoomWarn(false)}><div style={{background:"#0d1f19",border:"1px solid rgba(57,239,180,.3)",borderRadius:"14px",padding:"28px 32px",maxWidth:"380px",width:"90vw",textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.6)"}} onClick={e=>e.stopPropagation()}><p style={{margin:"0 0 8px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".14em",textTransform:"uppercase",color:"#39efb4"}}>{isIt?"Attenzione":"Warning"}</p><p style={{margin:"0 0 20px",fontSize:"15px",color:"#e8f5ef",lineHeight:1.5}}>{isIt?"Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?":"The display ratio is optimised for this screen. Are you sure you want to change the zoom?"}</p><div style={{display:"flex",gap:"10px",justifyContent:"center"}}><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.35)",background:"transparent",color:"#39efb4",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setEsgStrategistZoomWarn(false)}>{isIt?"Annulla":"Cancel"}</button><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid #c84040",background:"rgba(200,64,64,.12)",color:"#ff8080",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={dismissZoom}>{isIt?"Continua comunque":"Continue anyway"}</button></div></div></div>}
-      <div style={{position:"fixed",top:0,left:0,right:0,height:"4px",background:"#3b82f4",zIndex:9999,pointerEvents:"none"}}/>
-      <div style={{position:"fixed",bottom:0,left:0,right:0,height:"4px",background:"#39efb4",zIndex:9999,pointerEvents:"none"}}/>
-      <header className="missionNav missionNavTrust">
-        <button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
-        <div className="missionProgress"><span className="activeDot"/> ESG STRATEGIST</div>
-        {renderTrustBar()}
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
-      </header>
-      <section className="esgStrBody">
-        {/* colonna sinistra: foto profilo */}
-        <div className="esgStrStage">
-          <img src={`./characters/${profile}${matrixDone?"-success":"-neutral"}.png`} alt={name} className="esgStrProfileImg"/>
-          <div className="esgStrPersonaTag">
-            <span className="statusDot"/>
-            <div><small>ESG MANAGER</small><strong>{name}</strong></div>
-          </div>
-        </div>
-        {/* colonna destra: contenuto condizionale */}
-        <div className="esgStrContent">
-          {matrixDone?(
-            <>
-              <p className="eyebrow">{isIt?"LIVELLO SBLOCCATO":"LEVEL UNLOCKED"}</p>
-              <img src="./immagine/badge/1.svg" alt="ESG Strategist badge" className="esgStrBadgeImg"/>
-              <h1 className="esgStrTitle">{isIt?"Hai sbloccato il livello ESG Strategist!":"You've unlocked the ESG Strategist level!"}</h1>
-              <p className="esgStrSub">{isIt?"Hai identificato le esigenze di dati chiave e costruito la tua matrice di priorità. Ora è il momento di trasformare l'analisi in sfide decisionali concrete.":"You have identified key data needs and built your priority matrix. Now it's time to turn the analysis into concrete decision challenges."}</p>
-              <div className="esgStrTrustGain">
-                <span className="esgStrTrustGainLabel">{isIt?"Punti fiducia":"Trust score"}</span>
-                <div className="esgStrTrustBarWrap">
-                  <div className="trustBar"><span className="trustBarLabel">{t.trustLabel}</span><div className="trustBarTrack"><div className="trustBarFill" style={{width:`${trustScore}%`,background:trustColor}}/></div><span className="trustBarValue" style={{color:trustColor}}>{trustScore}<small>/100</small></span></div>
-                  <span className="esgStrTrustDelta">+10</span>
-                </div>
-              </div>
-              <p className="trustDisclaimer" style={{marginTop:"12px"}}>{isIt?"ⓘ Il punteggio misura la completezza e la profondità dell'analisi svolta, non una preferenza per una specifica tecnologia o soluzione.":"ⓘ The score measures the completeness and depth of the analysis performed, not a preference for any specific technology or solution."}</p>
-            </>
-          ):(
-            <>
-              <p className="eyebrow">{isIt?"LIVELLO BLOCCATO":"LEVEL LOCKED"}</p>
-              <div className="esgStrBadgeLocked">★ ESG STRATEGIST</div>
-              <h1 className="esgStrTitle esgStrTitleLocked">{isIt?"Livello ESG Strategist non ancora sbloccato":"ESG Strategist level not yet unlocked"}</h1>
-              <p className="esgStrSub">{isIt?"Per sbloccare il livello completa l'analisi nella sezione Priority Matrix.":"To unlock this level, complete the analysis in the Priority Matrix section."}</p>
-              <div className="esgStrTrustGain">
-                <span className="esgStrTrustGainLabel">{isIt?"Punti fiducia":"Trust score"}</span>
-                <div className="esgStrTrustBarWrap">
-                  <div className="trustBar"><span className="trustBarLabel">{t.trustLabel}</span><div className="trustBarTrack"><div className="trustBarFill" style={{width:`${trustScore}%`,background:trustColor}}/></div><span className="trustBarValue" style={{color:trustColor}}>{trustScore}<small>/100</small></span></div>
-                </div>
-              </div>
-              <p className="trustDisclaimer" style={{marginTop:"12px"}}>{isIt?"ⓘ Il punteggio misura la completezza e la profondità dell'analisi svolta, non una preferenza per una specifica tecnologia o soluzione.":"ⓘ The score measures the completeness and depth of the analysis performed, not a preference for any specific technology or solution."}</p>
-            </>
-          )}
-          <div className="esgStrActions">
-            <button className="secondaryAction" onClick={()=>goBack()}>← {isIt?"Indietro":"Back"}</button>
-            <button className="actionButton" onClick={()=>setScreen("roadmapPreview")}>{isIt?"Inizia le sfide →":"Start challenges →"}</button>
-          </div>
-          {renderSaveBtn(isIt)}
-        </div>
-      </section>
-    </main>;
-  }
-
-  if(screen==="challengeSeparator1"&&profile)return <ChallengeSeparator1 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[0]}/>;
-
-  if(screen==="missionCard1"&&profile)return <MissionCardScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={0} cardNum={1} backScreen="challengeSeparator1" needs={[...( needsByMissionHubFocused.find(([mi])=>mi===0)?.[1]||[]), {id:"__foundation__",label:language==="it"?"Una data foundation solida e tracciabile":"A solid and traceable data foundation"}]} priorities={priorities} needRelevance={needRelevance} needCriticality={needCriticality} needIdToCapability={needIdToCapability} setSelectedMission={setSelectedMission}/>;
-
-
-  if(screen==="introCopy"&&profile)return <main className="introScreen"><header className="missionNav"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> YOUR CHALLENGE</div><div className="introNavRight"><button className="introBackBtn" onClick={()=>goBack()}>← {language==="it"?"Indietro":"Back"}</button><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div></header><section className="characterStage"><img src={`./characters/${profile}-neutral.png`} alt={name}/><div className="characterTag characterTagRaised"><span className="statusDot"/><div><small>ESG MANAGER</small><strong>{name}</strong></div></div></section><section className="introBody"><p className="eyebrow">{t.introKicker}</p><h1>{t.introTitle}</h1><p className="storyText">{t.introBody}</p><div className="introTrustBar"><p className="introScoreLabel">{t.introScoreLabel}</p>{renderTrustBar()}</div><div className="introCtaRow"><button className="actionButton questLaunchBtn" onClick={()=>setScreen("roadmapPreview")}>{t.introStart}<b>→</b></button></div></section></main>;
-
-  if(screen==="missions"&&profile){
-    if(!!missionOutcomes[0])return renderMissionHub(false);
-    const m0=missionCatalog[0];
-    const questionBody=(t.mission0QuestionBody as string).replace("COMPANY_NAME",displayCompanyName);
-    return <main className="mission0IntroScreen">
-      <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> MISSION 01</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
-      <section className="m0iStage">
-        <img src={`./characters/${profile}-neutral.png`} alt={name} className="m0iProfileImg"/>
-        <div className="m0iPersonaTag"><span className="statusDot"/><div><small>ESG MANAGER</small><strong>{name}</strong></div></div>
-      </section>
-      <section className="m0iContent">
-        <div className="m0iMissionBadge"><span>{m0.icon}</span><i>{language==="it"?"MISSIONE 01 · DATA FOUNDATION":"MISSION 01 · DATA FOUNDATION"}</i></div>
-        <h1 className="m0iTitle">{language==="it"?m0.it:m0.en}</h1>
-        <p className="m0iKicker">{t.mission0QuestionKicker}</p>
-        <p className="m0iQuestion">{t.mission0Question}</p>
-        <p className="m0iBody">{questionBody}</p>
-        <button className="actionButton m0iCta" onClick={()=>{setSelectedMission(0);localStorage.setItem("envizi-quest-mission","1");setScreen("briefing");}}>{t.mission0Cta}<b>→</b></button>
-      </section>
-    </main>;
-  }
-
-  if(screen==="missionIntro"&&profile){const mid=t.missionIntroData[selectedMission]||t.missionIntroData[0];const mBody=(mid.body as string).replace("COMPANY_NAME",displayCompanyName);const activeMission=missionCatalog[selectedMission];return <main className="mission0IntroScreen"><header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {mid.eyebrow}</div>{renderTrustBar()}<div className="introNavRight"><button className="introBackBtn" onClick={()=>goBack()}>← {language==="it"?"Indietro":"Back"}</button><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div></header><section className="m0iStage"><img src={`./characters/${profile}-neutral.png`} alt={name} className="m0iProfileImg"/><div className="m0iPersonaTag"><span className="statusDot"/><div><small>ESG MANAGER</small><strong>{name}</strong></div></div></section><section className="m0iContent"><div className="m0iMissionBadge"><span>{activeMission.icon}</span><i>{mid.eyebrow}</i></div><h1 className="m0iTitle">{mid.title}</h1><p className="m0iKicker">{mid.kicker}</p><p className="m0iQuestion">{mid.question}</p><p className="m0iBody">{mBody}</p><button className="actionButton m0iCta" onClick={()=>setScreen("introCopy2")}>{mid.cta}<b>→</b></button></section></main>;}
-
-
-
-  if(screen==="summary"&&profile)return <SummaryScreen language={language} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} priorities={priorities} priorityIncluded={priorityIncluded} missionOrder={missionOrder} missionOutcomes={missionOutcomes} needsByMissionHub={needsByMissionHub} calculatedTrustScore={calculatedTrustScore} decisionLabel={decisionLabel} outcomeLabel={outcomeLabel} needRelevance={needRelevance} needCriticality={needCriticality} needIdToCapability={needIdToCapability} companyName={companyName} t={t}/>;
-
-  if(screen==="nextStep"&&profile)return <NextStepScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} priorities={priorities} missionOrder={missionOrder} missionOutcomes={missionOutcomes} missionParameters={missionParameters} trustScore={trustScore} contactEmail={contactEmail} setContactEmail={setContactEmail} approachBiz={approachBiz} approachData={approachData} decisionLabel={decisionLabel} missionItems={missionItems} missionUnits={missionUnits} renderSaveBtn={renderSaveBtn} t={t} name={name}/>;
-
-
-  if(screen==="milestone"&&profile)return <MilestoneScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionOutcomes={missionOutcomes} renderSaveBtn={renderSaveBtn} name={name}/>;
-
-
-  if(screen==="thankYou"&&profile)return <ThankYouScreen language={language} setLanguage={setLanguage} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} t={t}/>;
-
-
-
-  // ── ENERGIA E DECARBONIZZAZIONE — Foundation + Conclusion ──────────────────
-  if(screen==="challengeComplete1"&&profile)return <ChallengeComplete1 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar}/>;
-  // ── SEPARATORI E COMPLETAMENTI SFIDE 2-6 ──────────────────────────────────
-  if(screen==="challengeSeparator2"&&profile)return <ChallengeSeparator2 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[1]}/>;
-  if(screen==="missionCard2"&&profile)return <MissionCardScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[1]} cardNum={2} backScreen="challengeSeparator2" needs={needsByMissionHubFocused.find(([x])=>x===missionOrder[1])?.[1]||[]} priorities={priorities} needRelevance={needRelevance} needCriticality={needCriticality} needIdToCapability={needIdToCapability} setSelectedMission={setSelectedMission}/>;
-  if(screen==="challengeComplete2"&&profile)return <ChallengeComplete2 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar}/>;
-  if(screen==="challengeSeparator3"&&profile)return <ChallengeSeparator3 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[2]}/>;
-  if(screen==="missionCard3"&&profile)return <MissionCardScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[2]} cardNum={3} backScreen="challengeSeparator3" needs={needsByMissionHubFocused.find(([x])=>x===missionOrder[2])?.[1]||[]} priorities={priorities} needRelevance={needRelevance} needCriticality={needCriticality} needIdToCapability={needIdToCapability} setSelectedMission={setSelectedMission}/>;
-  if(screen==="challengeComplete3"&&profile)return <ChallengeComplete3 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar}/>;
-  if(screen==="challengeSeparator4"&&profile)return <ChallengeSeparator4 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[3]}/>;
-  if(screen==="missionCard4"&&profile)return <MissionCardScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[3]} cardNum={4} backScreen="challengeSeparator4" needs={needsByMissionHubFocused.find(([x])=>x===missionOrder[3])?.[1]||[]} priorities={priorities} needRelevance={needRelevance} needCriticality={needCriticality} needIdToCapability={needIdToCapability} setSelectedMission={setSelectedMission}/>;
-  if(screen==="challengeComplete4"&&profile)return <ChallengeComplete4 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar}/>;
-  if(screen==="challengeSeparator5"&&profile)return <ChallengeSeparator5 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[4]}/>;
-  if(screen==="missionCard5"&&profile)return <MissionCardScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[4]} cardNum={5} backScreen="challengeSeparator5" needs={needsByMissionHubFocused.find(([x])=>x===missionOrder[4])?.[1]||[]} priorities={priorities} needRelevance={needRelevance} needCriticality={needCriticality} needIdToCapability={needIdToCapability} setSelectedMission={setSelectedMission}/>;
-  if(screen==="challengeComplete5"&&profile)return <ChallengeComplete5 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar}/>;
-  if(screen==="challengeSeparator6"&&profile)return <ChallengeSeparator6 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[5]}/>;
-  if(screen==="missionCard6"&&profile)return <MissionCardScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} missionIndex={missionOrder[5]} cardNum={6} backScreen="challengeSeparator6" needs={needsByMissionHubFocused.find(([x])=>x===missionOrder[5])?.[1]||[]} priorities={priorities} needRelevance={needRelevance} needCriticality={needCriticality} needIdToCapability={needIdToCapability} setSelectedMission={setSelectedMission}/>;
-  if(screen==="challengeComplete6"&&profile)return <ChallengeComplete6 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar}/>;
-
-  if(screen==="energyFoundation"&&profile)return <EnergyFoundationScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} efRatings={efRatings} setEfRating={setEfRating}/>;
-
-  if(screen==="energyConclusion"&&profile)return <EnergyConclusionScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} efRatings={efRatings} missionOutcomes={missionOutcomes}/>;
-
-  // ── COINVOLGIMENTO SUPPLY CHAIN — Foundation + Conclusion ───────────────────
-  if(screen==="supplyFoundation"&&profile)return <SupplyFoundationScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} scRatings={scRatings} setScRating={setScRating}/>;
-
-  if(screen==="supplyConclusion"&&profile)return <SupplyConclusionScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} scRatings={scRatings} missionOutcomes={missionOutcomes}/>;
-
-  // ── ROTTA VERSO NET ZERO — Foundation + Conclusion ──────────────────────────
-  if(screen==="planningFoundation"&&profile)return <PlanningFoundationScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} plRatings={plRatings} setPlRating={setPlRating}/>;
-
-  if(screen==="planningConclusion"&&profile)return <PlanningConclusionScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} plRatings={plRatings} missionOutcomes={missionOutcomes}/>;
-
-  // ── FRAMEWORK ESG E DISCLOSURE — Foundation + Conclusion ───────────────────
-  if(screen==="frameworkFoundation"&&profile)return <FrameworkFoundationScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} frRatings={frRatings} setFrRating={setFrRating}/>;
-
-  if(screen==="frameworkConclusion"&&profile)return <FrameworkConclusionScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} frRatings={frRatings} missionOutcomes={missionOutcomes}/>;
-
-
-  if(screen==="reportingFoundation"&&profile)return <ReportingFoundationScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} rfRatings={rfRatings} setRfRating={setRfRating}/>;
-
-  if(screen==="reportingConclusion"&&profile)return <ReportingConclusionScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} rfRatings={rfRatings} missionOutcomes={missionOutcomes}/>;
-
-
-  if(screen==="dataFoundation"&&profile)return <DataFoundationScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} dfRatings={dfRatings} setDfRating={setDfRating}/>;
-
-
-  if(screen==="dfConclusion"&&profile)return <DFConclusionScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} dfRatings={dfRatings} missionOutcomes={missionOutcomes} t={t}/>;
 
 
 
@@ -1092,25 +888,10 @@ export default function Home(){
 
 
   if(screen==="company"&&profile)return <CompanyScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} companySector={companySector} companyMarket={companyMarket} esgReadiness={esgReadiness} companyDims={companyDims} updateCompanyDim={updateCompanyDim} geoDistrib={geoDistrib} siteTable={siteTable} displayCompanyName={displayCompanyName} csrdConfirmStep={csrdConfirmStep} setCsrdConfirmStep={setCsrdConfirmStep} csrdPendingChoice={csrdPendingChoice} setCsrdPendingChoice={setCsrdPendingChoice} csrdNote={csrdNote} setCsrdNote={setCsrdNote} csrdNoteOpen={csrdNoteOpen} setCsrdNoteOpen={setCsrdNoteOpen} csrdNoteDraft={csrdNoteDraft} setCsrdNoteDraft={setCsrdNoteDraft} t={t} name={name} companyName={companyName} companyLogo={companyLogo} reportingPath={reportingPath} setReportingPath={setReportingPath} questName={questName} onSave={(n)=>{saveQuest(n);setQuestName(n);}} renderSaveBtn={renderSaveBtn} nextScreen="company2" frameworkChecks={frameworkChecks} toggleFw={toggleFw} fwOpen={fwOpen} setFwOpen={setFwOpen} rptOpen={rptOpen} setRptOpen={setRptOpen} sustainabilityReportSince={sustainabilityReportSince} setSustainabilityReportSince={setSustainabilityReportSince} setEsgReadiness={setEsgReadiness}/>;
-  if(screen==="company2"&&profile)return <CompanyScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} companySector={companySector} companyMarket={companyMarket} esgReadiness={esgReadiness} companyDims={companyDims} updateCompanyDim={updateCompanyDim} geoDistrib={geoDistrib} siteTable={siteTable} displayCompanyName={displayCompanyName} csrdConfirmStep={csrdConfirmStep} setCsrdConfirmStep={setCsrdConfirmStep} csrdPendingChoice={csrdPendingChoice} setCsrdPendingChoice={setCsrdPendingChoice} csrdNote={csrdNote} setCsrdNote={setCsrdNote} csrdNoteOpen={csrdNoteOpen} setCsrdNoteOpen={setCsrdNoteOpen} csrdNoteDraft={csrdNoteDraft} setCsrdNoteDraft={setCsrdNoteDraft} t={t} name={name} companyName={companyName} companyLogo={companyLogo} reportingPath={reportingPath} setReportingPath={setReportingPath} questName={questName} onSave={(n)=>{saveQuest(n);setQuestName(n);}} renderSaveBtn={renderSaveBtn} nextScreen="approachStepsCopy" showGeo frameworkChecks={frameworkChecks} toggleFw={toggleFw} fwOpen={fwOpen} setFwOpen={setFwOpen} rptOpen={rptOpen} setRptOpen={setRptOpen} sustainabilityReportSince={sustainabilityReportSince} setSustainabilityReportSince={setSustainabilityReportSince}/>;
+  if(screen==="company2"&&profile)return <CompanyScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} companySector={companySector} companyMarket={companyMarket} esgReadiness={esgReadiness} companyDims={companyDims} updateCompanyDim={updateCompanyDim} geoDistrib={geoDistrib} siteTable={siteTable} displayCompanyName={displayCompanyName} csrdConfirmStep={csrdConfirmStep} setCsrdConfirmStep={setCsrdConfirmStep} csrdPendingChoice={csrdPendingChoice} setCsrdPendingChoice={setCsrdPendingChoice} csrdNote={csrdNote} setCsrdNote={setCsrdNote} csrdNoteOpen={csrdNoteOpen} setCsrdNoteOpen={setCsrdNoteOpen} csrdNoteDraft={csrdNoteDraft} setCsrdNoteDraft={setCsrdNoteDraft} t={t} name={name} companyName={companyName} companyLogo={companyLogo} reportingPath={reportingPath} setReportingPath={setReportingPath} questName={questName} onSave={(n)=>{saveQuest(n);setQuestName(n);}} renderSaveBtn={renderSaveBtn} nextScreen="priorities" showGeo frameworkChecks={frameworkChecks} toggleFw={toggleFw} fwOpen={fwOpen} setFwOpen={setFwOpen} rptOpen={rptOpen} setRptOpen={setRptOpen} sustainabilityReportSince={sustainabilityReportSince} setSustainabilityReportSince={setSustainabilityReportSince}/>;
 
-  if(screen==="priorities"&&profile)return <PrioritiesScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} priorities={priorities} priorityIncluded={priorityIncluded} togglePriorityIncluded={togglePriorityIncluded} rankPriority={rankPriority} prioExperience={prioExperience} setPrioExpModal={setPrioExpModal} prioExpModal={prioExpModal} prioExpMode={prioExpMode} setPrioExpMode={setPrioExpMode} prioExpSelected={prioExpSelected} setPrioExpSelected={setPrioExpSelected} setPrioExperience={setPrioExperience} prioDefaultExp={prioDefaultExp} displayCompanyName={displayCompanyName} t={t} name={name} onSave={(n)=>{saveQuest(n);setQuestName(n);}} defaultSaveName={questName} skipDataCopyIntro={approachDataCopySeen}/>;
+  if(screen==="priorities"&&profile)return <PrioritiesScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} priorities={priorities} priorityIncluded={priorityIncluded} togglePriorityIncluded={togglePriorityIncluded} rankPriority={rankPriority} prioExperience={prioExperience} setPrioExpModal={setPrioExpModal} prioExpModal={prioExpModal} prioExpMode={prioExpMode} setPrioExpMode={setPrioExpMode} prioExpSelected={prioExpSelected} setPrioExpSelected={setPrioExpSelected} setPrioExperience={setPrioExperience} prioDefaultExp={prioDefaultExp} displayCompanyName={displayCompanyName} t={t} name={name} onSave={(n)=>{saveQuest(n);setQuestName(n);}} defaultSaveName={questName} skipDataCopyIntro/>;
 
-  if(screen==="approachDataCopy"&&profile){
-    const goToData=()=>{
-      setApproachDataCopySeen(true);
-      // rimuove approachDataCopy dalla history così goBack non ci torna
-      setScreenHistory(h=>h.filter(s=>s!=="approachDataCopy"));
-      setScreenState("priorityData");
-    };
-    if(approachDataCopySeen){
-      // navigazione programmatica pulita: non aggiunge nulla alla history
-      setScreenHistory(h=>h.filter(s=>s!=="approachDataCopy"));
-      setScreenState("priorities");
-      return null;
-    }
-    return <ApproachDataCopyScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} t={t} onContinue={goToData}/>;
-  }
 
   if(screen==="priorityData"&&profile){
     const goBackToPriorities=()=>{setScreenHistory(h=>h.filter(s=>s!=="approachDataCopy"&&s!=="priorityData"));setScreenState("priorities");};
@@ -1119,130 +900,6 @@ export default function Home(){
 
 
   if(screen==="priorityMatrix"&&profile)return <PriorityMatrixScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} priorities={priorities} dataNeeds={dataNeeds} needRelevance={needRelevance} setNeedRelevance={setNeedRelevance} needCriticality={needCriticality} setNeedCriticality={setNeedCriticality} needIncluded={needIncluded} isNeedIncluded={isNeedIncluded} focusMinR={focusMinR} setFocusMinR={setFocusMinR} focusMinC={focusMinC} setFocusMinC={setFocusMinC} hoveredPriority={hoveredPriority} setHoveredPriority={setHoveredPriority} pmMissionFilter={pmMissionFilter} setPmMissionFilter={setPmMissionFilter} pmFromBriefing={pmFromBriefing} setPmFromBriefing={setPmFromBriefing} pmSelected={pmSelected} setPmSelected={setPmSelected} needIdToMission={needIdToMission} t={t} ucSelections={ucSelections} setUcSelections={setUcSelections}/>;
-
-
-  if(screen==="bridge"&&profile){
-    const top5=topNeeds;
-    const missions=t.bridgeMissions as {num:string,label:string,need:string}[];
-    // group top5 needs by destination mission (fallback → data foundation)
-    const needsByMission:Record<number,typeof top5>=Object.fromEntries([0,1,2,3,4,5].map(i=>[i,[]]));
-    top5.forEach((n,rank)=>{
-      const mi=needIdToMission[n.id]??0;
-      needsByMission[mi].push({...n,_rank:rank+1} as typeof top5[0] & {_rank:number});
-    });
-    return <main className="bridgeScreen">
-      <header className="missionNav missionNavTrust">
-        <button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
-        <div className="missionProgress"><span className="activeDot"/> THE QUEST</div>
-        {renderTrustBar()}
-        <div className="introNavRight"><button className="introBackBtn" onClick={()=>goBack()}>← {language==="it"?"Indietro":"Back"}</button><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div>
-      </header>
-      <section className="bridgeIntroBar">
-        <div>
-          <p className="eyebrow">{t.bridgeKicker}</p>
-          <h1>{t.bridgeTitle}</h1>
-          <p className="bridgeIntroText">{t.bridgeIntro}</p>
-        </div>
-        <button className="actionButton bridgeCta" onClick={()=>setScreen("missions")}>{t.bridgeCta}<b>→</b></button>
-      </section>
-      <section className="bridgeMapping">
-        {/* Riquadro prerequisito — missione 0 */}
-        {(()=>{
-          const m=missions[0];
-          const assigned=(needsByMission[0]||[]) as (typeof top5[0] & {_rank:number})[];
-          const hasNeeds=assigned.length>0;
-          return <div className="bridgePrereqBlock">
-            <div className="bridgeBlockLabel">{(t as any).bridgePrereqLabel}</div>
-            <div className={`bridgeMapRow bridgeMapRowPrereq${hasNeeds?"":" bridgeMapRowEmpty"}`}>
-              <div className="bridgeMapNeedsCol">
-                {hasNeeds ? assigned.map(n=>(
-                  <div key={n.id} className="bridgeMapNeed">
-                    <span className="bridgeMapNeedRank">{String(n._rank).padStart(2,"0")}</span>
-                    <div>
-                      <small>{language==="it"?"LA TUA ESIGENZA":"YOUR DATA NEED"}</small>
-                      <strong>{n.label}</strong>
-                      <span className="bridgeMapNeedPrio">{t.priorityNames[n.priority]}</span>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="bridgeMapNeedEmpty">
-                    <span className="bridgeMapNeedEmptyDash">—</span>
-                    <small>{language==="it"?"Nessuna esigenza prioritaria assegnata":"No priority need assigned"}</small>
-                  </div>
-                )}
-              </div>
-              <div className="bridgeMapConnector">
-                <span className={`bridgeMapConnectorLine${hasNeeds?"":" empty"}`}/>
-                <span className={`bridgeMapConnectorArrow${hasNeeds?"":" empty"}`}>▶</span>
-              </div>
-              <div className={`bridgeMapMission${hasNeeds?"":" bridgeMapMissionEmpty"}`}>
-                <span className="bridgeMapMissionNum">{m.num}</span>
-                <div>
-                  <small>{language==="it"?"SFIDA DELLA QUEST":"QUEST CHALLENGE"}</small>
-                  <strong className="bridgeMapMissionTitle">{m.label}</strong>
-                  <p className="bridgeMapMissionNeed">{m.need}</p>
-                </div>
-              </div>
-            </div>
-          </div>;
-        })()}
-        {/* Riquadro capacità ulteriori — missioni 1–4 */}
-        <div className="bridgeCapBlock">
-          <div className="bridgeBlockLabel">{(t as any).bridgeCapLabel}</div>
-          {missions.slice(1).map((m,idx)=>{
-            const mi=idx+1;
-            const assigned=(needsByMission[mi]||[]) as (typeof top5[0] & {_rank:number})[];
-            const hasNeeds=assigned.length>0;
-            return <div key={m.num} className={`bridgeMapRow${hasNeeds?"":" bridgeMapRowEmpty"}`}>
-              <div className="bridgeMapNeedsCol">
-                {hasNeeds ? assigned.map(n=>(
-                  <div key={n.id} className="bridgeMapNeed">
-                    <span className="bridgeMapNeedRank">{String(n._rank).padStart(2,"0")}</span>
-                    <div>
-                      <small>{language==="it"?"LA TUA ESIGENZA":"YOUR DATA NEED"}</small>
-                      <strong>{n.label}</strong>
-                      <span className="bridgeMapNeedPrio">{t.priorityNames[n.priority]}</span>
-                    </div>
-                  </div>
-                )) : (
-                  <div className="bridgeMapNeedEmpty">
-                    <span className="bridgeMapNeedEmptyDash">—</span>
-                    <small>{language==="it"?"Nessuna esigenza prioritaria assegnata":"No priority need assigned"}</small>
-                  </div>
-                )}
-              </div>
-              <div className="bridgeMapConnector">
-                <span className={`bridgeMapConnectorLine${hasNeeds?"":" empty"}`}/>
-                <span className={`bridgeMapConnectorArrow${hasNeeds?"":" empty"}`}>▶</span>
-              </div>
-              <div className={`bridgeMapMission${hasNeeds?"":" bridgeMapMissionEmpty"}`}>
-                <span className="bridgeMapMissionNum">{m.num}</span>
-                <div>
-                  <small>{language==="it"?"SFIDA DELLA QUEST":"QUEST CHALLENGE"}</small>
-                  <strong className="bridgeMapMissionTitle">{m.label}</strong>
-                  <p className="bridgeMapMissionNeed">{m.need}</p>
-                </div>
-              </div>
-            </div>;
-          })}
-        </div>
-      </section>
-    </main>;
-  }
-
-  if(screen==="compare"&&profile)return <Compare language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} selectedMission={selectedMission} active={active} asIsRatings={asIsRatings} setScreenHistory={setScreenHistory} setScreenState={setScreenState} handleDecision={handleDecision} t={t}/>;
-
-  if(screen==="tobe"&&profile)return <MissionFlowScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} screen="tobe" selectedMission={selectedMission} missionOutcomes={missionOutcomes} active={active} asIsRatings={asIsRatings} setAsIsRatings={setAsIsRatings} negativeChoice={negativeChoice} pendingOutcome={pendingOutcome} missionParameters={missionParameters} companyDims={companyDims} displayCompanyName={displayCompanyName} activeTrustIntro={activeTrustIntro} activeTrustSources={activeTrustSources} trustSteps={trustSteps} trustTotalW={trustTotalW} TRUST_BAR_W={TRUST_BAR_W} TRUST_BAR_GAP={TRUST_BAR_GAP} TRUST_CHART_H={TRUST_CHART_H} TRUST_SVG_PAD_X={TRUST_SVG_PAD_X} resultValues={resultValues} setPmMissionFilter={setPmMissionFilter} setPmFromBriefing={setPmFromBriefing} renderSaveBtn={renderSaveBtn} missionItems={missionItems} missionUnits={missionUnits} t={{...t,companyFacts:dynamicCompanyFacts}} name={name}/>;
-
-
-
-
-
-
-  if(screen==="introCopy2"&&profile)return <main className="introScreen"><header className="missionNav"><button className="brand brandButton" onClick={goToBrand}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> YOUR CHALLENGE</div><div className="introNavRight"><button className="introBackBtn" onClick={()=>goBack()}>← {language==="it"?"Indietro":"Back"}</button><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div></header><section className="characterStage"><img src={`./characters/${profile}-neutral.png`} alt={name}/><div className="characterTag characterTagRaised"><span className="statusDot"/><div><small>ESG MANAGER</small><strong>{name}</strong></div></div></section><section className="introBody"><p className="eyebrow">{t.introKicker}</p><h1>{t.introTitle}</h1><p className="storyText">{t.introBody}</p><div className="introTrustBox"><p className="introScoreLabel">{t.introScoreLabel}</p>{renderTrustBar()}</div><div className="introCtaRow"><button className="actionButton questLaunchBtn" onClick={()=>setScreen("compare")}>{t.introStart}<b>→</b></button></div></section></main>;
-
-
-  if((screen==="briefing"||screen==="asis"||screen==="trust"||screen==="negative"||screen==="success")&&profile)return <MissionFlowScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} screen={screen} selectedMission={selectedMission} missionOutcomes={missionOutcomes} active={active} asIsRatings={asIsRatings} setAsIsRatings={setAsIsRatings} negativeChoice={negativeChoice} pendingOutcome={pendingOutcome} missionParameters={missionParameters} companyDims={companyDims} displayCompanyName={displayCompanyName} activeTrustIntro={activeTrustIntro} activeTrustSources={activeTrustSources} trustSteps={trustSteps} trustTotalW={trustTotalW} TRUST_BAR_W={TRUST_BAR_W} TRUST_BAR_GAP={TRUST_BAR_GAP} TRUST_CHART_H={TRUST_CHART_H} TRUST_SVG_PAD_X={TRUST_SVG_PAD_X} resultValues={resultValues} setPmMissionFilter={setPmMissionFilter} setPmFromBriefing={setPmFromBriefing} renderSaveBtn={renderSaveBtn} missionItems={missionItems} missionUnits={missionUnits} t={{...t,companyFacts:dynamicCompanyFacts}} name={name}/>;
 
 
 
@@ -1292,7 +949,7 @@ export default function Home(){
         </div>
       </div>}
       <div className="welcomeBlueBar"/>
-      <span style={{position:"fixed",bottom:"20px",right:"24px",fontSize:"22px",fontWeight:700,letterSpacing:".18em",color:"rgba(57,239,180,.75)",fontFamily:"var(--font-geist-mono,monospace)",pointerEvents:"none",zIndex:9999}}>V6</span>
+      <span style={{position:"fixed",bottom:"20px",right:"160px",fontSize:"22px",fontWeight:700,letterSpacing:".18em",color:"rgba(57,239,180,.75)",fontFamily:"var(--font-geist-mono,monospace)",pointerEvents:"none",zIndex:9999}}>V6</span>
       <img src="./welcome-gen.png" alt="" className="welcomeBg" aria-hidden="true"/>
       <div className="welcomeBgOverlay"/>
       <header className="missionNav" style={{position:"relative",zIndex:3}}>
@@ -1347,7 +1004,7 @@ export default function Home(){
               <input className="welcomeInput" type="text" placeholder={isIt?"Es. NovaForge — sessione 1":"E.g. NovaForge — session 1"} value={questName} onChange={e=>setQuestName(e.target.value)}/>
             </div>
             {userName.trim()&&questName.trim()&&(
-              <button className="actionButton welcomeStartBtn" onClick={()=>{if(questName.trim())saveQuest(questName.trim());setScreenState("chapterMap");}}>
+              <button className="actionButton welcomeStartBtn" onClick={()=>{if(questName.trim())saveQuest(questName.trim());setScreenState("blank1");}}>
                 {isIt?"Inizia la Quest →":"Start the Quest →"}
               </button>
             )}
