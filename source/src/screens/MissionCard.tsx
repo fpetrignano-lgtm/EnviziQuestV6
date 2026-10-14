@@ -84,7 +84,7 @@ export function MissionCardScreen({
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> SFIDE</div>
         {renderTrustBar()}
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+        
       </header>
       <section className="missionCards roadmapCards" style={{paddingTop:"80px",paddingBottom:"100px",display:"flex",justifyContent:"center",alignItems:"flex-start",minHeight:"100vh",overflowY:"auto"}}>
         <article className="missionCard" style={{maxWidth:"960px",width:"100%",pointerEvents:"none"}}>

@@ -54,7 +54,7 @@ function ChallengeSeparator({ language, setLanguage, setScreen, reset, goBack, r
       <header className="missionNav" style={headerStyle}>
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> {isIt ? `SFIDA ${num}` : `CHALLENGE ${num}`}</div>
-        <button className="langMini" onClick={() => setLanguage(language === "it" ? "en" : "it")}>{language === "it" ? "EN" : "IT"}</button>
+        
       </header>
 
       {/* cerchio numerato */}
@@ -109,7 +109,7 @@ function ChallengeComplete({ language, setLanguage, setScreen, reset, goBack, re
       <header className="missionNav" style={headerStyle}>
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> SFIDE</div>
-        <button className="langMini" onClick={() => setLanguage(language === "it" ? "en" : "it")}>{language === "it" ? "EN" : "IT"}</button>
+        
       </header>
       <div style={{ textAlign: "center", display: "flex", flexDirection: "column", alignItems: "center", gap: "24px" }}>
         <p style={{ margin: 0, font: `700 14px var(--font-geist-mono)`, letterSpacing: ".2em", color: "#39efb4", textTransform: "uppercase" }}>{isIt ? `Sfida ${num} completata` : `Challenge ${num} completed`}</p>
@@ -167,7 +167,7 @@ export function SectionIntroSlide({ language, setLanguage, setScreen, reset, goB
       <header className="missionNav" style={headerStyle}>
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> {isIt ? labelIt.toUpperCase() : labelEn.toUpperCase()}</div>
-        <button className="langMini" onClick={() => setLanguage(language === "it" ? "en" : "it")}>{language === "it" ? "EN" : "IT"}</button>
+        
       </header>
 
       {/* cerchio numerato */}

@@ -229,7 +229,7 @@ export function CompanySetupScreen({
     </div>
   </div></Portal>}
   <div className="welcomeBlueBar"/>
-    <header className="missionNav"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"LA TUA AZIENDA":"YOUR COMPANY"}</div><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"LA TUA AZIENDA":"YOUR COMPANY"}</div></header>
     <div className="csBody">
       <div className="csLeft"><img className="csProfileImg" src={`./characters/${profile}-neutral.png`} alt={name}/><div className="csProfileTag"><span className="statusDot"/><div><small>ESG MANAGER</small><strong>{name}</strong></div></div></div>
       <div className="csRight">
@@ -244,11 +244,11 @@ export function CompanySetupScreen({
           <div className="csField">
             <label>{isIt?"Logo azienda (opzionale)":"Company logo (optional)"}</label>
             <div style={{display:"flex",alignItems:"center",gap:"10px",flexWrap:"wrap"}}>
-              <label style={{cursor:"pointer",display:"inline-flex",alignItems:"center",gap:"6px",fontSize:"13px",padding:"6px 12px",border:"1px solid #3a6a50",borderRadius:"6px",background:"#f7faf8",color:"#0d3a2a"}}>
+              <label style={{cursor:"pointer",display:"inline-flex",alignItems:"center",gap:"8px",fontSize:"14px",fontWeight:600,padding:"8px 16px",border:"2px solid #285e49",borderRadius:"8px",background:"#0c221a",color:"#72f7ca",boxShadow:"inset 0 1px 3px rgba(0,0,0,.35),0 0 0 1px rgba(57,239,180,.08)",transition:".15s"}}>
                 📎 {isIt?"Carica immagine":"Upload image"}
                 <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>{const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{if(ev.target?.result)setCompanyLogo(ev.target.result as string);};reader.readAsDataURL(file);}}/>
               </label>
-              {companyLogo&&(<><img src={companyLogo} alt="logo" style={{height:"36px",maxWidth:"120px",objectFit:"contain",borderRadius:"4px",border:"1px solid #d0e8d8"}}/><button onClick={()=>setCompanyLogo("")} style={{fontSize:"11px",padding:"3px 8px",border:"1px solid #c0d0c8",borderRadius:"4px",background:"#fff",cursor:"pointer",color:"#666"}}>✕ {isIt?"Rimuovi":"Remove"}</button></>)}
+              {companyLogo&&(<><img src={companyLogo} alt="logo" style={{height:"36px",maxWidth:"120px",objectFit:"contain",borderRadius:"6px",border:"2px solid #285e49",background:"#0c221a"}}/><button onClick={()=>setCompanyLogo("")} style={{fontSize:"12px",fontWeight:600,padding:"6px 12px",border:"2px solid #5a2828",borderRadius:"6px",background:"#220c0c",cursor:"pointer",color:"#ff8080"}}>✕ {isIt?"Rimuovi":"Remove"}</button></>)}
             </div>
           </div>
           <div className="csTwoCol">
@@ -268,8 +268,28 @@ export function CompanySetupScreen({
           {/* Dimensioni economiche e persone */}
           <div className="csField">
             <label>{isIt?"Dimensioni organizzazione":"Organisation size"}</label>
-            <div className="csDimsGrid">
-              <div className="csDimRow"><input className="csDimInput csDimInputYear" type="number" min={2000} max={2100} value={revenueYear} onChange={e=>setRevenueYear(parseInt(e.target.value)||revenueYear)}/><span className="csDimUnit">{isIt?"anno":"year"}</span><input className="csDimInput" type="number" min={0} value={companyDims[0]===0?"":companyDims[0]} onChange={e=>updateCompanyDim(0,parseFloat(e.target.value))}/><span className="csDimUnit">{isIt?dimLabelRevenue.it:dimLabelRevenue.en}</span><input className="csDimInput" type="number" min={0} value={companyDims[4]===0?"":companyDims[4]} onChange={e=>updateCompanyDim(4,parseFloat(e.target.value))}/><span className="csDimUnit">{isIt?dimLabelEmployees.it:dimLabelEmployees.en}</span></div>
+            <div className="csDimsFlex">
+              <div className="csDimBox">
+                <span className="csDimBoxLabel">{isIt?"Anno di riferimento":"Reference year"}</span>
+                <div className="csDimInputWrap">
+                  <input className="csDimInput csDimInputYear" type="number" min={2000} max={2100} value={revenueYear} onChange={e=>setRevenueYear(parseInt(e.target.value)||revenueYear)}/>
+                  <span className="csDimUnit">{isIt?"anno":"year"}</span>
+                </div>
+              </div>
+              <div className="csDimBox">
+                <span className="csDimBoxLabel">{isIt?"Fatturato":"Revenue"}</span>
+                <div className="csDimInputWrap">
+                  <input className="csDimInput" type="number" min={0} placeholder="0" value={companyDims[0]===0?"":companyDims[0]} onChange={e=>updateCompanyDim(0,parseFloat(e.target.value))}/>
+                  <span className="csDimUnit">{isIt?dimLabelRevenue.it:dimLabelRevenue.en}</span>
+                </div>
+              </div>
+              <div className="csDimBox">
+                <span className="csDimBoxLabel">{isIt?"Numero dipendenti":"Employees count"}</span>
+                <div className="csDimInputWrap">
+                  <input className="csDimInput" type="number" min={0} placeholder="0" value={companyDims[4]===0?"":companyDims[4]} onChange={e=>updateCompanyDim(4,parseFloat(e.target.value))}/>
+                  <span className="csDimUnit">{isIt?dimLabelEmployees.it:dimLabelEmployees.en}</span>
+                </div>
+              </div>
             </div>
           </div>
           {/* Tabella sedi */}
@@ -332,7 +352,6 @@ export function CompanySetupScreen({
             <div className="csField"><label>Business Unit</label><input className="csInput" type="text" placeholder={isIt?"Es. Operations":"E.g. Operations"} value={businessUnit} onChange={e=>setBusinessUnit(e.target.value)}/></div>
           </div>
           <div style={{display:"flex",justifyContent:"flex-end",marginTop:"auto"}}>
-            <button className="actionButton csConfirmBtn" onClick={()=>setScreen("company")}>{isIt?"Avanti":"Next"}<b>→</b></button>
           </div>
         </div>
       </div>
@@ -534,7 +553,7 @@ export function CompanyScreen({
     </div>
   </div>}
     <div className="welcomeBlueBar"/>
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> COMPANY PROFILE</div>{renderTrustBar()}<div style={{display:"flex",alignItems:"center",gap:"8px",marginRight:"8px"}}><img src={`./characters/${profile}-neutral.png`} alt={name} style={{width:"36px",height:"36px",borderRadius:"50%",objectFit:"cover",border:"2px solid rgba(57,239,180,.35)",flexShrink:0}}/><div style={{display:"flex",flexDirection:"column",lineHeight:1.2}}><small style={{font:"700 8px var(--font-geist-mono,monospace)",letterSpacing:".12em",textTransform:"uppercase",color:"#39efb4"}}>ESG MANAGER</small><strong style={{fontSize:"12px",color:"#f2fff9",fontWeight:700}}>{name}</strong></div></div><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> COMPANY PROFILE</div>{renderTrustBar()}<div style={{display:"flex",alignItems:"center",gap:"8px",marginRight:"8px"}}><img src={`./characters/${profile}-neutral.png`} alt={name} style={{width:"36px",height:"36px",borderRadius:"50%",objectFit:"cover",border:"2px solid rgba(57,239,180,.35)",flexShrink:0}}/><div style={{display:"flex",flexDirection:"column",lineHeight:1.2}}><small style={{font:"700 8px var(--font-geist-mono,monospace)",letterSpacing:".12em",textTransform:"uppercase",color:"#39efb4"}}>ESG MANAGER</small><strong style={{fontSize:"12px",color:"#f2fff9",fontWeight:700}}>{name}</strong></div></div></header>
     {showGeo ? (
     <section className="geoMapsSection" style={{position:"relative",flex:1,minHeight:0}} aria-label={`${displayCompanyName} footprint`}>
       {(()=>{
@@ -685,7 +704,6 @@ export function CompanyScreen({
                   </div>
                 </>
               )}
-              <button className="actionButton" style={{marginTop:"16px",width:"auto",alignSelf:"flex-end"}} onClick={()=>setScreen(nextScreen as any)}>{t.explore}<b>→</b></button>
             </div>
           </div>
           </>
@@ -742,8 +760,8 @@ export function CompanyScreen({
           }
         </span>
       </div>}
-      {setEsgReadiness&&<div className="csField" style={{marginTop:"12px"}}>
-        <label style={{fontSize:"13px",fontWeight:600,color:"#7ab3a5",letterSpacing:".05em"}}>{isIt?"Seleziona il tuo stato attuale dati ESG":"Select your current ESG data status"}</label>
+      {setEsgReadiness&&<div className="csField" style={{marginTop:"16px",marginBottom:"8px"}}>
+        <label style={{fontSize:"16px",fontWeight:700,color:"#72f7ca",letterSpacing:".08em",textTransform:"uppercase",fontFamily:"var(--font-geist-mono)"}}>{isIt?"Seleziona il tuo stato attuale dati ESG":"Select your current ESG data status"}</label>
         <select className="csSelect" value={esgReadiness} onChange={e=>setEsgReadiness(e.target.value as EsgReadiness)}>
           {readinessList.map(r=><option key={r.key} value={r.key}>{r.label}</option>)}
         </select>
@@ -769,7 +787,6 @@ export function CompanyScreen({
                   <span className="fwTriggerLabel">{isIt?`Altri framework di interesse di ${displayCompanyName}`:`Other frameworks of interest for ${displayCompanyName}`}</span>
                   <span className="fwTriggerEdit">✎ {isIt?"seleziona":"select"}</span>
                 </button>
-                <button className="actionButton" style={{flexShrink:0,marginTop:0,width:"auto"}} onClick={()=>setScreen(nextScreen as any)}>{t.explore}<b>→</b></button>
               </div>
               {/* Summary: selected list or fallback */}
               {selected.length>0

@@ -7,7 +7,15 @@ export default defineConfig(({ command }) => ({
   server: { port: 5176, strictPort: true },
   plugins: [react(), reportRefreshPlugin()],
   build: {
-    chunkSizeWarningLimit: 700,
-    assetsInlineLimit: 65536, // 64KB — inline le icone obiettivo (~57-61KB) come base64
+    chunkSizeWarningLimit: 1500,
+    assetsInlineLimit: 65536,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+          pptx: ["pptxgenjs"],
+        },
+      },
+    },
   },
 }));

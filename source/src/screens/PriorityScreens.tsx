@@ -28,7 +28,7 @@ export function ApproachDataCopyScreen({ language, setLanguage, setScreen, reset
     {zoomWarnOpen&&<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(7,18,15,.82)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setZoomWarnOpen(false)}><div style={{background:"#0d1f19",border:"1px solid rgba(57,239,180,.3)",borderRadius:"14px",padding:"28px 32px",maxWidth:"380px",width:"90vw",textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.6)"}} onClick={e=>e.stopPropagation()}><p style={{margin:"0 0 8px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".14em",textTransform:"uppercase",color:"#39efb4"}}>{isIt?"Attenzione":"Warning"}</p><p style={{margin:"0 0 20px",fontSize:"15px",color:"#e8f5ef",lineHeight:1.5}}>{isIt?"Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?":"The display ratio is optimised for this screen. Are you sure you want to change the zoom?"}</p><div style={{display:"flex",gap:"10px",justifyContent:"center"}}><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.35)",background:"transparent",color:"#39efb4",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setZoomWarnOpen(false)}>{isIt?"Annulla":"Cancel"}</button><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid #c84040",background:"rgba(200,64,64,.12)",color:"#ff8080",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setZoomWarnOpen(false)}>{isIt?"Continua comunque":"Continue anyway"}</button></div></div></div>}
     <div style={{position:"fixed",top:0,left:0,right:0,height:"4px",background:"#3b82f4",zIndex:9999,pointerEvents:"none"}}/>
     <div style={{position:"fixed",bottom:0,left:0,right:0,height:"4px",background:"#39efb4",zIndex:9999,pointerEvents:"none"}}/>
-    <header className="missionNav"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> IL PERCORSO</div><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> IL PERCORSO</div></header>
     <section className="approachIntroBody approachIntroBodyWithImg">
       <div className="approachIntroLeft">
         <h1 className="approachIntroTitle">{t.approachDataTitle}</h1>
@@ -98,7 +98,7 @@ export function PrioritiesScreen({
       <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
       <div className="missionProgress"><span className="activeDot"/> BUSINESS PRIORITIES</div>
       {renderTrustBar()}
-      <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+      
     </header>
     <div className="prioCardsLayout">
       <div className="prioCardsIntro">
@@ -382,7 +382,7 @@ export function PriorityDataScreen({
         <span style={{fontSize:"11px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".08em",textTransform:"uppercase",color:"#39efb4",opacity:.75}}>{isIt?"Incluse":"Included"}</span>
         <span style={{fontSize:"15px",fontWeight:700,color:"#39efb4",fontVariantNumeric:"tabular-nums",minWidth:"1.6em",textAlign:"center"}}>{totalIncluded}</span>
       </div>
-      <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+      
     </header>
 
     {/* ── Top bar: titolo + navigazione ── */}
@@ -1010,7 +1010,7 @@ export function PriorityMatrixScreen({
       <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
       <div className="missionProgress"><span className="activeDot"/> PRIORITY MATRIX</div>
       {renderTrustBar()}
-      <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+      
     </header>
     <div className="pmBody">
       <div className="pmLeft">

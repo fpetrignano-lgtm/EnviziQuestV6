@@ -169,7 +169,7 @@ export function SummaryScreen({
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> ESG ROADMAP</div>
         {renderTrustBar()}
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+        
       </header>
 
       <div className="summaryDocBody">
@@ -379,7 +379,7 @@ export function NextStepScreen({
     ?`Ciao,%0A%0AHo completato l'Envizi Impact Quest e vorrei richiedere un Business Value Assessment per quantificare il valore di IBM Envizi per la mia organizzazione.${commonBody}`
     :`Hi,%0A%0AI have completed the Envizi Impact Quest and would like to request a Business Value Assessment to quantify the value of IBM Envizi for my organisation.${commonBody}`;
   return <main className="nextStepScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> NEXT STEP</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> NEXT STEP</div>{renderTrustBar()}</header>
     <section className="nextStepBody">
       <p className="eyebrow">{t.nextKicker}</p>
       <h1>{t.nextTitle}</h1>
@@ -410,7 +410,7 @@ interface ThankYouProps extends CommonProps {
 
 export function ThankYouScreen({ language, setLanguage, reset, goBack, renderTrustBar, t }: ThankYouProps) {
   return <main className="thankYouScreen">
-    <header className="missionNav"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> FINAL</div><div className="introNavRight"><button className="introBackBtn" onClick={()=>goBack()}>← {language==="it"?"Indietro":"Back"}</button><button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></div></header>
+    <header className="missionNav"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> FINAL</div><div className="introNavRight"><button className="introBackBtn" onClick={()=>goBack()}>← {language==="it"?"Indietro":"Back"}</button></div></header>
     <section className="thankYouBody"><h1>{t.thankYouTitle}</h1></section>
   </main>;
 }
@@ -432,7 +432,7 @@ export function MilestoneScreen({ language, profile, setLanguage, setScreen, res
       <header className="missionNav">
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> MILESTONE</div>
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+        
       </header>
       <section className="thankYouBody" style={{display:"grid",gridTemplateColumns:"1fr 1fr",alignItems:"center",gap:"0",padding:"0",overflow:"hidden"}}>
         <div style={{height:"100%",overflow:"hidden"}}>

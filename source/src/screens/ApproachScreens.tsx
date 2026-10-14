@@ -33,7 +33,7 @@ export function ApproachIntro({language,setLanguage,setScreen,reset,goBack,t}:Pr
       <header className="missionNav">
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> IL PERCORSO</div>
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+        
       </header>
       <section className="approachIntroBody approachIntroBodyWithImg">
         <div className="approachIntroLeft">
@@ -90,7 +90,7 @@ export function ApproachReport({language,setLanguage,setScreen,reset,goBack,t}:P
       <header className="missionNav">
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> IL PERCORSO</div>
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+        
       </header>
       <section className="approachIntroBody approachIntroBodyWithImg">
         <div className="approachIntroLeft">

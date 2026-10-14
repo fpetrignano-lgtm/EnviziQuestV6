@@ -115,7 +115,7 @@ export function ChapterMap({ language, profile, setLanguage, setScreen, reset, r
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> {isIt ? "LA TUA ESPERIENZA" : "YOUR EXPERIENCE"}</div>
         {Object.keys(missionOutcomes).length > 0 && renderTrustBar()}
-        <button className="langMini" onClick={() => setLanguage(language === "it" ? "en" : "it")}>{language === "it" ? "EN" : "IT"}</button>
+        
       </header>
 
       <section style={{ flex: 1, display: "flex", flexDirection: "row", alignItems: "stretch", padding: "12px 24px 12px", gap: "24px", overflow: "hidden", boxSizing: "border-box", minHeight: 0 }}>

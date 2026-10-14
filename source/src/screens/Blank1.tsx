@@ -36,17 +36,13 @@ export function Blank1({language,profile,setLanguage,setScreen,reset,renderTrust
       <header className="missionNav">
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> IL QUEST</div>
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
       </header>
       <section style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"12px",padding:"12px 0 20px",width:"100%",flex:1,minHeight:0}}>
         <div style={{position:"relative",width:"100%",maxWidth:"none",flex:1,minHeight:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
           <img src="./slide-education-1.png" alt="Education slide 1" style={{width:"100%",height:"100%",objectFit:"contain",borderRadius:"10px",boxShadow:"0 4px 32px rgba(0,0,0,.5)",display:"block"}}/>
         </div>
         <div style={{display:"flex",alignItems:"center",gap:"20px",marginTop:"4px",flexShrink:0}}>
-          <button className="introBackBtn" onClick={()=>setScreen("welcome")}>← {language==="it"?"Indietro":"Back"}</button>
-          <button style={{background:"#1a56db",color:"#fff",border:"none",borderRadius:"8px",padding:"14px 36px",fontWeight:700,cursor:"pointer",fontSize:"16px",letterSpacing:".04em"}} onClick={()=>{setP10SlideIdx(0);setScreen("p10Slideshow");}}>▶ {language==="it"?"Presentazione IT":"Presentation IT"}</button>
-          <button style={{background:"#0f3460",color:"#fff",border:"none",borderRadius:"8px",padding:"14px 36px",fontWeight:700,cursor:"pointer",fontSize:"16px",letterSpacing:".04em"}} onClick={()=>{setP10SlideIdx(0);setLanguage("en");setScreen("p10Slideshow");}}>▶ Presentation EN</button>
-          <button className="actionButton approachIntroCta" onClick={()=>setScreen("companySetup")}>{language==="it"?"Avanti":"Next"} <b>→</b></button>
+          <button style={{background:"#1a56db",color:"#fff",border:"none",borderRadius:"8px",padding:"14px 36px",fontWeight:700,cursor:"pointer",fontSize:"16px",letterSpacing:".04em"}} onClick={()=>{setP10SlideIdx(0);setScreen("p10Slideshow");}}>▶ Presentazione Envizi</button>
         </div>
       </section>
       <div style={{position:"absolute",bottom:0,left:0,right:0,height:"4px",background:"#39efb4",zIndex:100}}/>
@@ -90,7 +86,6 @@ export function IlTuoReport({language,profile,setLanguage,setScreen,reset,render
       <div style={{position:"absolute",top:0,left:0,right:0,height:"4px",background:"#3b82f4",zIndex:100}}/>
       <header className="missionNav">
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
       </header>
       <section style={{display:"flex",flexDirection:"column",alignItems:"center",gap:"12px",padding:"12px 0 20px",width:"100%",flex:1,minHeight:0}}>
         <div style={{width:"100%",padding:"0 40px",flexShrink:0}}>
@@ -109,21 +104,14 @@ export function IlTuoReport({language,profile,setLanguage,setScreen,reset,render
         </div>
         {refreshError&&<p style={{color:"#ff7777",fontSize:"13px",margin:0}}>{refreshError}</p>}
         <div style={{display:"flex",alignItems:"center",gap:"12px",marginTop:"4px",flexShrink:0,flexWrap:"wrap",justifyContent:"center"}}>
-          <button className="introBackBtn" onClick={()=>setScreen("priorityMatrix")}>← {isIt?"Indietro":"Back"}</button>
 
           {/* Scarica PPTX */}
           {onDownloadPptx&&<>
             <button
               disabled={!!downloading}
-              style={{background:"#0d5c3a",color:"#39efb4",border:"1px solid #39efb4",borderRadius:"8px",padding:"12px 24px",fontWeight:700,cursor:downloading?"not-allowed":"pointer",fontSize:"15px",letterSpacing:".04em",opacity:downloading?0.6:1}}
+              style={{background:"#0d5c3a",color:"#39efb4",border:"1px solid #39efb4",borderRadius:"8px",padding:"12px 28px",fontWeight:700,cursor:downloading?"not-allowed":"pointer",fontSize:"15px",letterSpacing:".04em",opacity:downloading?0.6:1}}
               onClick={()=>handleDownload("it")}>
-              {downloading==="it"?"⏳ …":("↓ "+(isIt?"Scarica IT":"Download IT"))}
-            </button>
-            <button
-              disabled={!!downloading}
-              style={{background:"#0d3a2a",color:"#39efb4",border:"1px solid #39efb4",borderRadius:"8px",padding:"12px 24px",fontWeight:700,cursor:downloading?"not-allowed":"pointer",fontSize:"15px",letterSpacing:".04em",opacity:downloading?0.6:1}}
-              onClick={()=>handleDownload("en")}>
-              {downloading==="en"?"⏳ …":"↓ Download EN"}
+              {downloading==="it"?"⏳ Generazione…":"↓ Scarica Presentazione PPTX"}
             </button>
           </>}
 
@@ -131,19 +119,18 @@ export function IlTuoReport({language,profile,setLanguage,setScreen,reset,render
           {onRefreshAndView&&<>
             <button
               disabled={refreshing}
-              style={{background:refreshing?"#1a3a2a":"#1a56db",color:"#fff",border:"none",borderRadius:"8px",padding:"12px 24px",fontWeight:700,cursor:refreshing?"not-allowed":"pointer",fontSize:"15px",letterSpacing:".04em",opacity:refreshing?0.7:1}}
+              style={{background:refreshing?"#1a3a2a":"#1a56db",color:"#fff",border:"none",borderRadius:"8px",padding:"12px 28px",fontWeight:700,cursor:refreshing?"not-allowed":"pointer",fontSize:"15px",letterSpacing:".04em",opacity:refreshing?0.7:1}}
               onClick={()=>handleRefresh("it")}>
-              {refreshing?"⏳ "+( isIt?"Generando…":"Generating…"):"▶ "+(isIt?"Genera e visualizza IT":"Generate & view IT")}
-            </button>
-            <button
-              disabled={refreshing}
-              style={{background:refreshing?"#0f2040":"#0f3460",color:"#fff",border:"none",borderRadius:"8px",padding:"12px 24px",fontWeight:700,cursor:refreshing?"not-allowed":"pointer",fontSize:"15px",letterSpacing:".04em",opacity:refreshing?0.7:1}}
-              onClick={()=>handleRefresh("en")}>
-              {refreshing?"⏳ Generating…":"▶ Generate & view EN"}
+              {refreshing?"⏳ Generando…":"▶ Genera e visualizza slide"}
             </button>
           </>}
 
-          <button className="actionButton approachIntroCta" onClick={()=>setScreen("reportSlideshow")}>{isIt?"Avanti":"Next"} <b>→</b></button>
+          <button
+            style={{background:"#0c2820",border:"2px solid #39efb4",color:"#72f7ca",borderRadius:"8px",padding:"12px 28px",fontWeight:800,cursor:"pointer",fontSize:"15px",letterSpacing:".04em",boxShadow:"0 0 14px rgba(57,239,180,.25)"}}
+            onClick={()=>setScreen("selectPath")}>
+            ☰ Menu
+          </button>
+
         </div>
       </section>
       <div style={{position:"absolute",bottom:0,left:0,right:0,height:"4px",background:"#3b82f4",zIndex:100}}/>

@@ -35,7 +35,7 @@ export function QuestIntro({language,profile,setLanguage,setScreen,reset,renderT
         <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <div className="missionProgress"><span className="activeDot"/> IL QUEST</div>
         {renderTrustBar()}
-        <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+        
       </header>
       <section className="questIntroBody">
         <img src={`./characters/${profile}-neutral.png`} className="questIntroProfileImg" alt={name}/>

@@ -14,7 +14,7 @@ export function P10Slideshow({language,setLanguage,setScreen,reset,p10SlideIdx,s
       <header style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"10px 20px",background:"rgba(0,0,0,.85)",zIndex:10}}>
         <button className="brand brandButton" onClick={reset} style={{color:"#fff"}}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
         <span style={{color:"#c9e8dc",fontSize:"13px",fontWeight:700}}>{p10SlideIdx+1} / {P10_SLIDES.length}</span>
-        <button className="langMini" onClick={()=>setScreen(backScreen)} style={{background:"transparent",border:"1px solid #39efb4",color:"#39efb4",borderRadius:"4px",padding:"4px 10px",cursor:"pointer"}}>✕ {language==="it"?"Chiudi":"Close"}</button>
+        <button className="langMini" onClick={()=>setScreen(backScreen)} style={{background:"transparent",border:"1px solid #39efb4",color:"#39efb4",borderRadius:"4px",padding:"4px 10px",cursor:"pointer"}}>✕ Chiudi</button>
       </header>
       <section style={{display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",background:"#000",minHeight:0,position:"relative"}}>
         <img src={P10_SLIDES[p10SlideIdx]} alt={`Slide ${p10SlideIdx+1}`} style={{maxWidth:"100%",maxHeight:"100%",width:"100%",height:"100%",objectFit:"contain"}}/>

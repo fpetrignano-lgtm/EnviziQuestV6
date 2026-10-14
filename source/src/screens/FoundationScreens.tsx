@@ -76,7 +76,7 @@ export function DataFoundationScreen({ language, profile, setLanguage, setScreen
   const dfHighMaybe = dfScore >= 30;
   const dfHighlight = dfHighMaybe;
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> DATA FOUNDATION</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> DATA FOUNDATION</div>{renderTrustBar()}</header>
     <div className="dfStickyBar">
       <div className="dfStickyLeft">
         <p className="eyebrow">{isIt?"PERCHÉ SELEZIONARE IBM ENVIZI · DATA FOUNDATION":"WHY SELECT IBM ENVIZI · DATA FOUNDATION"}</p>
@@ -115,7 +115,7 @@ export function DFConclusionScreen({ language, profile, setLanguage, setScreen, 
   const decisionColor = m0outcome === "positive" ? "#39efb4" : m0outcome === "warning" ? "#ffc07c" : "#ff7777";
   const accentColor = dfHighVery ? "#39efb4" : dfHighMaybe ? "#ffc07c" : "#57606a";
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> DATA FOUNDATION</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> DATA FOUNDATION</div>{renderTrustBar()}</header>
     <div className="dfConclusionBody">
       <div className="dfcLeft">
         <p className="eyebrow" style={{letterSpacing:".18em",fontSize:"22px"}}>{isIt?"CONCLUSIONI · DATA FOUNDATION":"CONCLUSIONS · DATA FOUNDATION"}</p>
@@ -155,7 +155,7 @@ export function EnergyFoundationScreen({ language, setLanguage, setScreen, reset
   const efPct = Math.min(100,Math.round(efScore));
   const efHighlight = efScore >= 35;
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"ENERGIA E DECARBONIZZAZIONE":"ENERGY AND DECARBONISATION"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"ENERGIA E DECARBONIZZAZIONE":"ENERGY AND DECARBONISATION"}</div>{renderTrustBar()}</header>
     <div className="dfStickyBar">
       <div className="dfStickyLeft">
         <p className="eyebrow">{isIt?"PERCHÉ SELEZIONARE IBM ENVIZI · ENERGY ANALYTICS":"WHY SELECT IBM ENVIZI · ENERGY ANALYTICS"}</p>
@@ -194,7 +194,7 @@ export function EnergyConclusionScreen({ language, setLanguage, setScreen, reset
   const decisionColor = m1outcome === "positive" ? "#39efb4" : m1outcome === "warning" ? "#ffc07c" : "#ff7777";
   const accentColor = efHighVery ? "#39efb4" : efHighMaybe ? "#ffc07c" : "#57606a";
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"ENERGIA E DECARBONIZZAZIONE":"ENERGY AND DECARBONISATION"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"ENERGIA E DECARBONIZZAZIONE":"ENERGY AND DECARBONISATION"}</div>{renderTrustBar()}</header>
     <div className="dfConclusionBody">
       <div className="dfcLeft">
         <p className="eyebrow" style={{letterSpacing:".18em",fontSize:"22px"}}>{isIt?"CONCLUSIONI · ENERGIA E DECARBONIZZAZIONE":"CONCLUSIONS · ENERGY AND DECARBONISATION"}</p>
@@ -228,7 +228,7 @@ export function SupplyFoundationScreen({ language, setLanguage, setScreen, reset
   const scPct = Math.min(100,Math.round(scScore));
   const scHighlight = scScore >= 35;
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"COINVOLGIMENTO SUPPLY CHAIN":"SUPPLY CHAIN ENGAGEMENT"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"COINVOLGIMENTO SUPPLY CHAIN":"SUPPLY CHAIN ENGAGEMENT"}</div>{renderTrustBar()}</header>
     <div className="dfStickyBar">
       <div className="dfStickyLeft">
         <p className="eyebrow">{isIt?"PERCHÉ SELEZIONARE IBM ENVIZI · SUPPLY CHAIN INTELLIGENCE":"WHY SELECT IBM ENVIZI · SUPPLY CHAIN INTELLIGENCE"}</p>
@@ -267,7 +267,7 @@ export function SupplyConclusionScreen({ language, setLanguage, setScreen, reset
   const decisionColor = m2outcome === "positive" ? "#39efb4" : m2outcome === "warning" ? "#ffc07c" : "#ff7777";
   const accentColor = scHighVery ? "#39efb4" : scHighMaybe ? "#ffc07c" : "#57606a";
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"COINVOLGIMENTO SUPPLY CHAIN":"SUPPLY CHAIN ENGAGEMENT"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"COINVOLGIMENTO SUPPLY CHAIN":"SUPPLY CHAIN ENGAGEMENT"}</div>{renderTrustBar()}</header>
     <div className="dfConclusionBody">
       <div className="dfcLeft">
         <p className="eyebrow" style={{letterSpacing:".18em",fontSize:"22px"}}>{isIt?"CONCLUSIONI · SUPPLY CHAIN ENGAGEMENT":"CONCLUSIONS · SUPPLY CHAIN ENGAGEMENT"}</p>
@@ -301,7 +301,7 @@ export function ReportingFoundationScreen({ language, setLanguage, setScreen, re
   const rfPct = Math.min(100,Math.round(rfScore));
   const rfHighlight = rfScore >= 35;
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"REPORTING E PERFORMANCE":"REPORTING AND PERFORMANCE"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"REPORTING E PERFORMANCE":"REPORTING AND PERFORMANCE"}</div>{renderTrustBar()}</header>
     <div className="dfStickyBar">
       <div className="dfStickyLeft">
         <p className="eyebrow">{isIt?"PERCHÉ SELEZIONARE IBM ENVIZI · GHG & REPORTING":"WHY SELECT IBM ENVIZI · GHG & REPORTING"}</p>
@@ -340,7 +340,7 @@ export function ReportingConclusionScreen({ language, setLanguage, setScreen, re
   const decisionColor = m3outcome === "positive" ? "#39efb4" : m3outcome === "warning" ? "#ffc07c" : "#ff7777";
   const accentColor = rfHighVery ? "#39efb4" : rfHighMaybe ? "#ffc07c" : "#57606a";
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"REPORTING E PERFORMANCE":"REPORTING AND PERFORMANCE"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"REPORTING E PERFORMANCE":"REPORTING AND PERFORMANCE"}</div>{renderTrustBar()}</header>
     <div className="dfConclusionBody">
       <div className="dfcLeft">
         <p className="eyebrow" style={{letterSpacing:".18em",fontSize:"22px"}}>{isIt?"CONCLUSIONI · REPORTING E PERFORMANCE":"CONCLUSIONS · REPORTING AND PERFORMANCE"}</p>
@@ -374,7 +374,7 @@ export function PlanningFoundationScreen({ language, setLanguage, setScreen, res
   const plPct = Math.min(100,Math.round(plScore));
   const plHighlight = plScore >= 35;
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"ROTTA VERSO NET ZERO":"NET ZERO PATHWAY"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"ROTTA VERSO NET ZERO":"NET ZERO PATHWAY"}</div>{renderTrustBar()}</header>
     <div className="dfStickyBar">
       <div className="dfStickyLeft">
         <p className="eyebrow">{isIt?"PERCHÉ SELEZIONARE IBM ENVIZI · PLANNING E SCENARIO MODELER":"WHY SELECT IBM ENVIZI · PLANNING & SCENARIO MODELER"}</p>
@@ -413,7 +413,7 @@ export function PlanningConclusionScreen({ language, setLanguage, setScreen, res
   const decisionColor = m4outcome === "positive" ? "#39efb4" : m4outcome === "warning" ? "#ffc07c" : "#ff7777";
   const accentColor = plHighVery ? "#39efb4" : plHighMaybe ? "#ffc07c" : "#57606a";
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"ROTTA VERSO NET ZERO":"NET ZERO PATHWAY"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"ROTTA VERSO NET ZERO":"NET ZERO PATHWAY"}</div>{renderTrustBar()}</header>
     <div className="dfConclusionBody">
       <div className="dfcLeft">
         <p className="eyebrow" style={{letterSpacing:".18em",fontSize:"22px"}}>{isIt?"CONCLUSIONI · ROTTA VERSO NET ZERO":"CONCLUSIONS · NET ZERO PATHWAY"}</p>
@@ -447,7 +447,7 @@ export function FrameworkFoundationScreen({ language, setLanguage, setScreen, re
   const frPct = Math.min(100,Math.round(frScore));
   const frHighlight = frScore >= 35;
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"FRAMEWORK ESG E DISCLOSURE":"ESG FRAMEWORKS AND DISCLOSURE"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"FRAMEWORK ESG E DISCLOSURE":"ESG FRAMEWORKS AND DISCLOSURE"}</div>{renderTrustBar()}</header>
     <div className="dfStickyBar">
       <div className="dfStickyLeft">
         <p className="eyebrow">{isIt?"PERCHÉ SELEZIONARE IBM ENVIZI · SUSTAINABILITY REPORTING MANAGER":"WHY SELECT IBM ENVIZI · SUSTAINABILITY REPORTING MANAGER"}</p>
@@ -486,7 +486,7 @@ export function FrameworkConclusionScreen({ language, setLanguage, setScreen, re
   const decisionColor = m5outcome === "positive" ? "#39efb4" : m5outcome === "warning" ? "#ffc07c" : "#ff7777";
   const accentColor = frHighVery ? "#39efb4" : frHighMaybe ? "#ffc07c" : "#57606a";
   return <main className="dfScreen">
-    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"FRAMEWORK ESG E DISCLOSURE":"ESG FRAMEWORKS AND DISCLOSURE"}</div>{renderTrustBar()}<button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button></header>
+    <header className="missionNav missionNavTrust"><button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button><div className="missionProgress"><span className="activeDot"/> {isIt?"FRAMEWORK ESG E DISCLOSURE":"ESG FRAMEWORKS AND DISCLOSURE"}</div>{renderTrustBar()}</header>
     <div className="dfConclusionBody">
       <div className="dfcLeft">
         <p className="eyebrow" style={{letterSpacing:".18em",fontSize:"22px"}}>{isIt?"CONCLUSIONI · FRAMEWORK ESG E DISCLOSURE":"CONCLUSIONS · ESG FRAMEWORKS AND DISCLOSURE"}</p>

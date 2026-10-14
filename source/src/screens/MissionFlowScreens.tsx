@@ -85,7 +85,7 @@ export function MissionFlowScreen({
     <header className="missionNav">
       <button className="brand brandButton" onClick={reset}><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></button>
       <div className="missionProgress"><span className="activeDot"/> {t.mission} <b>{String(selectedMission+1).padStart(2,"0")}</b><i>/</i>06</div>
-      <button className="langMini" onClick={()=>setLanguage(language==="it"?"en":"it")}>{language==="it"?"EN":"IT"}</button>
+      
     </header>
     <section className="characterStage">
       <img src={imageFor(profile,screen)} alt={`${name} · ${screen}`}/>
