@@ -24,6 +24,8 @@ const adminGuides = adminGuidesRaw as AdminGuideItem[];
 interface Props extends CommonProps {
   userName?: string;
   setP10SlideIdx?: React.Dispatch<React.SetStateAction<number>>;
+  initialCategory?: string;
+  initialGuideId?: string;
 }
 
 export function AdminGuideScreen({
@@ -31,12 +33,32 @@ export function AdminGuideScreen({
   setLanguage,
   setScreen,
   reset,
+  initialCategory = "all",
+  initialGuideId,
 }: Props) {
   const isIt = language === "it";
-  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory || "all");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [activeGuide, setActiveGuide] = useState<AdminGuideItem | null>(null);
+  const [activeGuide, setActiveGuide] = useState<AdminGuideItem | null>(() => {
+    if (initialGuideId) {
+      return adminGuides.find((g) => g.id === initialGuideId) || null;
+    }
+    return null;
+  });
   const [activeSlideIdx, setActiveSlideIdx] = useState<number>(0);
+
+  React.useEffect(() => {
+    if (initialCategory) {
+      setSelectedCategory(initialCategory);
+    }
+    if (initialGuideId) {
+      const g = adminGuides.find((item) => item.id === initialGuideId);
+      if (g) {
+        setActiveGuide(g);
+        setActiveSlideIdx(0);
+      }
+    }
+  }, [initialCategory, initialGuideId]);
 
   // Extract unique categories
   const categories = useMemo(() => {
@@ -528,10 +550,11 @@ export function AdminGuideScreen({
             flex: 1,
             overflowY: "auto",
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
-            gap: "16px",
+            gridTemplateColumns: "repeat(3, 1fr)",
+            gap: "18px 20px",
             paddingRight: "6px",
-            paddingBottom: "10px",
+            paddingBottom: "16px",
+            alignContent: "start",
           }}
         >
           {filteredGuides.map((guide) => {
@@ -542,46 +565,45 @@ export function AdminGuideScreen({
             return (
               <div
                 key={guide.id}
+                onClick={() => openSlideshow(guide, 0)}
                 style={{
-                  background: "#0a221b",
-                  border: "2px solid #244f3f",
+                  background: "#0c2820",
+                  border: "2px solid #3db88f",
                   borderRadius: "14px",
-                  padding: "16px 18px",
+                  padding: "20px 22px",
                   display: "flex",
                   flexDirection: "column",
                   justifyContent: "space-between",
-                  transition: "all .18s ease",
-                  boxShadow: "0 4px 18px rgba(0,0,0,0.35)",
+                  cursor: "pointer",
+                  transition: "all .2s ease",
+                  boxShadow: "0 8px 24px rgba(0,0,0,.4), 0 0 14px rgba(57,239,180,.1)",
                   position: "relative",
+                  overflow: "hidden",
+                  minHeight: "230px",
                 }}
                 className="selectPathCard"
               >
+                <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "4px", background: "#39efb4" }} />
+                
                 {/* Card Top */}
                 <div>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "10px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{
-                        display: "inline-flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        width: "30px",
-                        height: "30px",
-                        borderRadius: "50%",
-                        background: "rgba(57,239,180,.15)",
-                        border: "1.5px solid #39efb4",
-                        color: "#39efb4",
-                        fontSize: "13px",
-                        fontWeight: 800,
-                        fontFamily: "var(--font-geist-mono,monospace)",
-                      }}>
-                        {guide.num}
-                      </span>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "12px" }}>
+                    <div style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      padding: "4px 10px",
+                      background: "rgba(57,239,180,.15)",
+                      border: "1px solid #39efb4",
+                      borderRadius: "6px",
+                    }}>
+                      <span style={{ fontSize: "14px" }}>{guide.icon}</span>
                       <span style={{
                         fontFamily: "var(--font-geist-mono,monospace)",
                         fontSize: "11px",
-                        fontWeight: 700,
-                        color: "#72f7ca",
-                        letterSpacing: ".06em",
+                        fontWeight: 800,
+                        color: "#39efb4",
+                        letterSpacing: ".08em",
                         textTransform: "uppercase",
                       }}>
                         {category}
@@ -590,23 +612,23 @@ export function AdminGuideScreen({
 
                     <span style={{
                       fontFamily: "var(--font-geist-mono,monospace)",
-                      fontSize: "12px",
-                      color: "#39efb4",
-                      background: "#0c2820",
-                      padding: "2px 8px",
+                      fontSize: "11.5px",
+                      color: "#72f7ca",
+                      background: "#071a14",
+                      padding: "3px 9px",
                       borderRadius: "10px",
                       border: "1px solid #1a4234",
-                      fontWeight: 600,
+                      fontWeight: 700,
                     }}>
                       {guide.slideCount} {isIt ? "slide" : "slides"}
                     </span>
                   </div>
 
                   <h3 style={{
-                    fontSize: "17px",
-                    fontWeight: 700,
+                    fontSize: "19px",
+                    fontWeight: 800,
                     color: "#ffffff",
-                    lineHeight: 1.35,
+                    lineHeight: 1.25,
                     margin: "0 0 8px",
                     letterSpacing: "-.01em",
                   }}>
@@ -614,8 +636,8 @@ export function AdminGuideScreen({
                   </h3>
 
                   <p style={{
-                    fontSize: "13px",
-                    color: "#a0ccbc",
+                    fontSize: "13.5px",
+                    color: "#c9e8dc",
                     lineHeight: 1.45,
                     margin: "0 0 14px",
                   }}>
@@ -625,21 +647,24 @@ export function AdminGuideScreen({
 
                 {/* Card Actions */}
                 <div style={{
+                  marginTop: "auto",
+                  paddingTop: "14px",
+                  borderTop: "1px solid rgba(57,239,180,0.16)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
                   gap: "10px",
-                  paddingTop: "12px",
-                  borderTop: "1px solid #14352a",
                 }}>
                   <button
-                    onClick={() => openSlideshow(guide, 0)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      openSlideshow(guide, 0);
+                    }}
                     style={{
-                      flex: 1,
                       background: "#184e3b",
                       border: "1.5px solid #39efb4",
                       color: "#ffffff",
-                      padding: "8px 12px",
+                      padding: "8px 14px",
                       borderRadius: "8px",
                       fontWeight: 700,
                       fontSize: "13px",
@@ -654,29 +679,50 @@ export function AdminGuideScreen({
                     ▶ {isIt ? "Visualizza slide" : "View slides"}
                   </button>
 
-                  <a
-                    href={guide.pptxUrl}
-                    download
-                    title={isIt ? "Scarica file PowerPoint" : "Download PowerPoint file"}
-                    style={{
-                      background: "#0c2820",
-                      border: "1.5px solid #2e6b54",
-                      color: "#72f7ca",
-                      padding: "8px 12px",
-                      borderRadius: "8px",
-                      fontWeight: 700,
-                      fontSize: "13px",
-                      cursor: "pointer",
-                      textDecoration: "none",
-                      display: "inline-flex",
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <a
+                      href={guide.pptxUrl}
+                      download
+                      onClick={(e) => e.stopPropagation()}
+                      title={isIt ? "Scarica file PowerPoint" : "Download PowerPoint file"}
+                      style={{
+                        background: "#0c2820",
+                        border: "1.5px solid #2e6b54",
+                        color: "#72f7ca",
+                        padding: "7px 11px",
+                        borderRadius: "8px",
+                        fontWeight: 700,
+                        fontSize: "12px",
+                        cursor: "pointer",
+                        textDecoration: "none",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "4px",
+                        transition: ".15s",
+                      }}
+                    >
+                      📥 PPTX
+                    </a>
+
+                    <span style={{
+                      width: "28px",
+                      height: "28px",
+                      borderRadius: "50%",
+                      background: "rgba(57,239,180,.12)",
+                      border: "1px solid #39efb4",
+                      display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      gap: "4px",
-                      transition: ".15s",
-                    }}
-                  >
-                    📥 PPTX
-                  </a>
+                      color: "#39efb4",
+                      fontSize: "13px",
+                      fontWeight: 700,
+                      fontFamily: "var(--font-geist-mono,monospace)",
+                      flexShrink: 0,
+                    }}>
+                      {guide.num}
+                    </span>
+                  </div>
                 </div>
               </div>
             );

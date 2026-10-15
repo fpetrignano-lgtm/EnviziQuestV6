@@ -1579,3 +1579,6 @@ body{font-size:18px}.eyebrow{font-size:22px}.brand{font-size:14px}.step,.mission
 .globalSaveCancel:hover{color:#39efb4}
 .actionButton:disabled{opacity:.38;cursor:not-allowed;pointer-events:none;}.globalNext{position:fixed;right:24px;bottom:28px;z-index:9998;display:inline-flex;align-items:center;gap:9px;padding:9px 13px;border:1px solid rgba(114,247,202,.42);border-radius:999px;background:rgba(5,18,13,.92);color:#f2fff9;box-shadow:0 4px 20px rgba(0,0,0,.35);backdrop-filter:blur(14px);cursor:pointer;font:11px var(--font-geist-mono);letter-spacing:.07em;text-transform:uppercase;transition:opacity .2s}.globalNext:hover:not(:disabled){color:#07120f;background:#72f7ca;border-color:#72f7ca}.globalNext:disabled{opacity:0;pointer-events:none}
 .globalBack{z-index:9998}
+
+/* 07 · company: stessa dimensione font in tutta la pagina, escluso il titolo */
+.companyScreen .companyCopy *:not(h1){font-size:22px!important}

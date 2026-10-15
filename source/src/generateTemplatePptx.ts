@@ -1344,6 +1344,116 @@ async function appendReportFindings(
     }
   }
 
+  // ── Slide finale: Roadmap Envizi per <Azienda> ───────────────────────────────
+  if (data.roadmap) {
+    const rm = data.roadmap;
+    const newSlideNum = existingSlideCount + FINDINGS_SLIDE_COUNT + 1;
+    const font = `<a:latin typeface="Calibri" panose="020F0502020204030204" pitchFamily="34" charset="0"/><a:cs typeface="Calibri" panose="020F0502020204030204" pitchFamily="34" charset="0"/>`;
+    const run = (text: string, sz: number, bold = false, color = "1F2937") =>
+      `<a:r><a:rPr lang="it-IT" sz="${sz}"${bold ? ' b="1"' : ""} dirty="0"><a:solidFill><a:srgbClr val="${color}"/></a:solidFill>${font}</a:rPr><a:t>${xmlEsc(text)}</a:t></a:r>`;
+    const para = (inner: string, spcBef = 0) =>
+      `<a:p><a:pPr><a:spcBef><a:spcPts val="${spcBef}"/></a:spcBef></a:pPr>${inner}</a:p>`;
+    const bullet = (text: string) =>
+      `<a:p><a:pPr marL="228600" indent="-228600"><a:spcBef><a:spcPts val="300"/></a:spcBef><a:buFont typeface="Arial"/><a:buChar char="&#8226;"/></a:pPr>${run(text, 1200)}</a:p>`;
+    const box = (id: number, name: string, x: number, y: number, cx: number, cy: number, line: string, fill: string, paras: string) =>
+      `<p:sp><p:nvSpPr><p:cNvPr id="${id}" name="${name}"/><p:cNvSpPr/><p:nvPr/></p:nvSpPr>` +
+      `<p:spPr><a:xfrm><a:off x="${x}" y="${y}"/><a:ext cx="${cx}" cy="${cy}"/></a:xfrm>` +
+      `<a:prstGeom prst="roundRect"><a:avLst><a:gd name="adj" fmla="val 3000"/></a:avLst></a:prstGeom>` +
+      `<a:solidFill><a:srgbClr val="${fill}"/></a:solidFill><a:ln w="28575"><a:solidFill><a:srgbClr val="${line}"/></a:solidFill></a:ln></p:spPr>` +
+      `<p:txBody><a:bodyPr wrap="square" lIns="182880" tIns="137160" rIns="182880" bIns="137160" rtlCol="0" anchor="t"><a:normAutofit/></a:bodyPr><a:lstStyle/>${paras}</p:txBody></p:sp>`;
+    const connLine = (c: { simple: number; medium: number; advanced: number }, color: string) => {
+      const total = c.simple + c.medium + c.advanced;
+      return para(
+        run(isIt ? "Connettori: " : "Connectors: ", 1300, true, color) +
+        run(
+          isIt
+            ? `Semplici ${c.simple} · Medi ${c.medium} · Avanzati ${c.advanced} — Totale ${total}`
+            : `Simple ${c.simple} · Medium ${c.medium} · Advanced ${c.advanced} — Total ${total}`,
+          1300, false
+        ),
+        900
+      );
+    };
+    const noneTxt = (color: string) => para(run(isIt ? "Nessuna componente selezionata." : "No components selected.", 1200, false, color), 300);
+    const row = (label: string, value: number | string, bold = false) =>
+      para(run(`${label}: `, 1300, bold) + run(String(value), 1300, true), 300);
+
+    // Fase 1: componenti + conti + connettori
+    const p1 =
+      para(run(isIt ? "Fase 1 – Componenti" : "Phase 1 – Components", 1600, true, "0F7B5F")) +
+      (rm.phase1.length ? rm.phase1.map(bullet).join("") : noneTxt("57606A")) +
+      para(run(isIt ? "Dimensionamento conti" : "Account sizing", 1400, true, "0F7B5F"), 1200) +
+      row(isIt ? "Totale sedi" : "Total locations", rm.totalSites) +
+      row(isIt ? "Conti ESG per sede" : "ESG accounts per location", rm.perSite) +
+      row(isIt ? "Totale conti per le sedi" : "Total accounts for locations", rm.sitesAccounts) +
+      row(isIt ? "Conti corporate social" : "Corporate social accounts", rm.corporateSocial) +
+      row(isIt ? "Conti corporate scope 3" : "Corporate scope 3 accounts", rm.corporateScope3) +
+      row(isIt ? "Numero totale dei conti" : "Total number of accounts", rm.totalAccounts, true) +
+      connLine(rm.connectors.fase1, "0F7B5F");
+
+    // Fase 2: componenti + connettori
+    const p2 =
+      para(run(isIt ? "Fase 2 – Componenti" : "Phase 2 – Components", 1600, true, "0369A1")) +
+      (rm.phase2.length ? rm.phase2.map(bullet).join("") : noneTxt("57606A")) +
+      connLine(rm.connectors.fase2, "0369A1");
+
+    const titleShape =
+      `<p:sp><p:nvSpPr><p:cNvPr id="4" name="Titolo roadmap"/><p:cNvSpPr txBox="1"/><p:nvPr/></p:nvSpPr>` +
+      `<p:spPr><a:xfrm><a:off x="343786" y="327753"/><a:ext cx="9700000" cy="461665"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom><a:noFill/></p:spPr>` +
+      `<p:txBody><a:bodyPr wrap="square" rtlCol="0"><a:normAutofit/></a:bodyPr><a:lstStyle/>` +
+      `<a:p>${run(`Roadmap Envizi ${isIt ? "per" : "for"} ${companyName}`, 2400, true, "000000")}</a:p></p:txBody></p:sp>`;
+
+    const BOX_Y = 1077433;
+    const BOX_CY = 5300000;
+    const BOX_CX = 5650000;
+    let spShapes =
+      titleShape +
+      box(5, "Roadmap fase 1", 343786, BOX_Y, BOX_CX, BOX_CY, "0F9D74", "F1FBF7", p1) +
+      box(6, "Roadmap fase 2", 343786 + BOX_CX + 200000, BOX_Y, BOX_CX, BOX_CY, "0284C7", "F0F8FF", p2);
+
+    let slideRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">` +
+      `<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slideLayout" Target="../slideLayouts/slideLayout1.xml"/>`;
+
+    const logoEntry = Object.keys(mainZip.files).find(f => f.startsWith("ppt/media/logo_company."));
+    if (logoEntry) {
+      const logoExt = logoEntry.split(".").pop() ?? "png";
+      slideRels += `<Relationship Id="rLogoRoadmap" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="../media/logo_company.${logoExt}"/>`;
+      spShapes +=
+        `<p:pic><p:nvPicPr><p:cNvPr id="700" name="logo_roadmap"/><p:cNvPicPr><a:picLocks noChangeAspect="1"/></p:cNvPicPr><p:nvPr/></p:nvPicPr>` +
+        `<p:blipFill><a:blip r:embed="rLogoRoadmap"/><a:stretch><a:fillRect/></a:stretch></p:blipFill>` +
+        `<p:spPr><a:xfrm><a:off x="10191750" y="228600"/><a:ext cx="1571625" cy="523875"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>`;
+    }
+    slideRels += `</Relationships>`;
+
+    const slideXml =
+      `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n` +
+      `<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">` +
+      `<p:cSld><p:spTree><p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>` +
+      `<p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>` +
+      `${spShapes}</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>`;
+
+    mainZip.file(`ppt/slides/slide${newSlideNum}.xml`, slideXml);
+    mainZip.file(`ppt/slides/_rels/slide${newSlideNum}.xml.rels`, slideRels);
+
+    const ctFile = mainZip.file("[Content_Types].xml");
+    if (ctFile) {
+      let ctXml = await ctFile.async("string");
+      if (!ctXml.includes(`slide${newSlideNum}.xml`)) {
+        ctXml = ctXml.replace("</Types>", `<Override PartName="/ppt/slides/slide${newSlideNum}.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/></Types>`);
+        mainZip.file("[Content_Types].xml", ctXml);
+      }
+    }
+    presXml = presXml.replace("</p:sldIdLst>", `<p:sldId id="${300 + newSlideNum}" r:id="rFnd${newSlideNum}"/></p:sldIdLst>`);
+    const presRelsFile = mainZip.file("ppt/_rels/presentation.xml.rels");
+    if (presRelsFile) {
+      let presRels = await presRelsFile.async("string");
+      if (!presRels.includes(`rFnd${newSlideNum}`)) {
+        presRels = presRels.replace("</Relationships>", `<Relationship Id="rFnd${newSlideNum}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/slide" Target="slides/slide${newSlideNum}.xml"/></Relationships>`);
+        mainZip.file("ppt/_rels/presentation.xml.rels", presRels);
+      }
+    }
+  }
+
   // Write updated presentation.xml
   mainZip.file("ppt/presentation.xml", presXml);
 }

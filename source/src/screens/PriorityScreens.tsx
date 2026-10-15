@@ -150,7 +150,7 @@ export function PrioritiesScreen({
         <button
           className="actionButton prioCardsConfirmBtn"
           disabled={Object.values(priorityIncluded).filter(Boolean).length === 0}
-          onClick={()=>{localStorage.setItem("envizi-quest-priorities",JSON.stringify(priorities));setScreen(skipDataCopyIntro?"priorityData":"approachDataCopy");}}
+          onClick={()=>{localStorage.setItem("envizi-quest-priorities",JSON.stringify(priorities));setScreen("functionalScope");}}
         >{isIt?"Avanti":"Next"}<b>→</b></button>
       </div>
     </div>
@@ -876,11 +876,6 @@ export function PriorityMatrixScreen({
   // ── Use-case flow state ──────────────────────────────────────────────────
   const [ucOpen,setUcOpen]=useState<string|null>(null);
   const [ucDraft,setUcDraft]=useState<number[]>([]);
-  // Tiene traccia di quale valore di highCount l'utente ha già dismesso.
-  // null = mai dismesso → popup aperto se highCount≠5.
-  // Se highCount cambia (o si arriva sulla schermata con un count diverso) si riapre.
-  const [not5WarnDismissedAt,setNot5WarnDismissedAt]=useState<number|null>(null);
-  const [synthWarnOpen,setSynthWarnOpen]=useState(false);
 
   // Tutti i need inclusi
   const allNeeds = dataNeeds.filter(n => isNeedIncluded(n.id)).map((n) => {
@@ -891,10 +886,6 @@ export function PriorityMatrixScreen({
     const tierColor = relNorm>7&&crit>7?"#ff4d4d":relNorm>4||crit>4?"#7dd3fc":"#9ca3af";
     return {...n,rel,relNorm,crit,prioIdx,color:tierColor};
   });
-
-  // Tutti i candidati nel quadrante R>5 C>5 con scenari (senza cap)
-  const allHighNeeds = allNeeds.filter(n => n.relNorm > 5 && n.crit > 5 && (USE_CASE_SCENARIOS[n.id]?.length ?? 0) > 0);
-  const highCount = allHighNeeds.length; // numero effettivo nel quadrante
 
   // Need candidati (R>5 e C>5 con scenari), ordinati per C+R desc, a parità tiebreak hash stabile, cap 5
   const ucNeeds = React.useMemo(()=>{
@@ -908,15 +899,8 @@ export function PriorityMatrixScreen({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[dataNeeds,needRelevance,needCriticality]);
 
-  // Il popup compare se highCount≠5 E l'utente non ha ancora dismesso *questo* valore.
-  // Si riapre automaticamente appena il count cambia (anche solo di 1).
-  const showNot5Warn = highCount !== 5 && not5WarnDismissedAt !== highCount;
-
   // Prossimo need (tra i top-5) senza selezione → target freccia
   const nextUcNeed = ucNeeds.find(n => !(ucSelections[n.id]?.length));
-
-  // Tutti i top-5 compilati → abilita pulsante avanti
-  const allUcDone = ucNeeds.length === 0 || ucNeeds.every(n => (ucSelections[n.id]?.length ?? 0) > 0);
 
   // Apri popup per un need
   const openUcPopup = useCallback((id:string) => {
@@ -958,52 +942,6 @@ export function PriorityMatrixScreen({
 
   return <main className="pmScreen" style={{position:"relative"}}>
     {zoomWarnOpen&&<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(7,18,15,.82)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setZoomWarnOpen(false)}><div style={{background:"#0d1f19",border:"1px solid rgba(57,239,180,.3)",borderRadius:"14px",padding:"28px 32px",maxWidth:"380px",width:"90vw",textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.6)"}} onClick={e=>e.stopPropagation()}><p style={{margin:"0 0 8px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".14em",textTransform:"uppercase",color:"#39efb4"}}>{isIt?"Attenzione":"Warning"}</p><p style={{margin:"0 0 20px",fontSize:"15px",color:"#e8f5ef",lineHeight:1.5}}>{isIt?"Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?":"The display ratio is optimised for this screen. Are you sure you want to change the zoom?"}</p><div style={{display:"flex",gap:"10px",justifyContent:"center"}}><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.35)",background:"transparent",color:"#39efb4",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setZoomWarnOpen(false)}>{isIt?"Annulla":"Cancel"}</button><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid #c84040",background:"rgba(200,64,64,.12)",color:"#ff8080",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setZoomWarnOpen(false)}>{isIt?"Continua comunque":"Continue anyway"}</button></div></div></div>}
-    {/* ── Popup "non 5 elementi" ─────────────────────────────────────────── */}
-    {showNot5Warn&&<div style={{position:"fixed",inset:0,zIndex:19000,background:"rgba(4,12,10,.90)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-      <div style={{background:"#0d1f19",border:"1px solid rgba(253,224,71,.45)",borderRadius:"16px",padding:"36px 40px",maxWidth:"680px",width:"92vw",boxShadow:"0 12px 48px rgba(0,0,0,.7)"}} onClick={e=>e.stopPropagation()}>
-        <p style={{margin:"0 0 6px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".12em",textTransform:"uppercase",color:"#fde047"}}>{isIt?"Attenzione — metodo a 5 priorità":"Warning — 5-priority method"}</p>
-        <p style={{margin:"0 0 18px",fontSize:"26px",fontWeight:700,color:"#e8f5ef",lineHeight:1.35}}>
-          {isIt
-            ? `Nel quadrante R>5 e C>5 sono presenti ${highCount} element${highCount===1?"o":"i"}, non 5.`
-            : `The R>5 and C>5 quadrant contains ${highCount} element${highCount===1?"":"s"}, not 5.`}
-        </p>
-        <p style={{margin:"0 0 24px",fontSize:"20px",color:"#7ecfb8",lineHeight:1.6}}>
-          {isIt
-            ? (highCount>5
-                ? "Il metodo prevede l'analisi di esattamente 5 elementi prioritari. Abbassa il valore R o C di qualche elemento per riportare il totale a 5."
-                : "Il metodo prevede l'analisi di esattamente 5 elementi prioritari. Alza il valore R o C di qualche elemento per raggiungere 5.")
-            : (highCount>5
-                ? "The method requires exactly 5 priority elements. Lower the R or C value of some elements to bring the total back to 5."
-                : "The method requires exactly 5 priority elements. Raise the R or C value of some elements to reach 5.")}
-        </p>
-        <div style={{display:"flex",justifyContent:"flex-end"}}>
-          <button style={{padding:"12px 28px",borderRadius:"8px",border:"1px solid rgba(253,224,71,.5)",background:"rgba(253,224,71,.12)",color:"#fde047",fontSize:"18px",fontWeight:700,cursor:"pointer"}} onClick={()=>setNot5WarnDismissedAt(highCount)}>
-            {isIt?"Ho capito, continuo a modificare →":"Got it, I'll keep editing →"}
-          </button>
-        </div>
-      </div>
-    </div>}
-    {/* ── Modale blocco sintesi: count ≠ 5 ───────────────────────────── */}
-    {synthWarnOpen&&<div style={{position:"fixed",inset:0,zIndex:29000,background:"rgba(4,12,10,.92)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setSynthWarnOpen(false)}>
-      <div style={{background:"#0d1f19",border:"2px solid rgba(253,224,71,.55)",borderRadius:"16px",padding:"36px 40px",maxWidth:"640px",width:"92vw",boxShadow:"0 12px 48px rgba(0,0,0,.7)"}} onClick={e=>e.stopPropagation()}>
-        <p style={{margin:"0 0 6px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".12em",textTransform:"uppercase",color:"#fde047"}}>{isIt?"Azione bloccata":"Action blocked"}</p>
-        <p style={{margin:"0 0 16px",fontSize:"24px",fontWeight:700,color:"#e8f5ef",lineHeight:1.35}}>
-          {isIt
-            ? `Nel quadrante R>5 e C>5 sono presenti ${highCount} element${highCount===1?"o":"i"}, non 5.`
-            : `The R>5 and C>5 quadrant contains ${highCount} element${highCount===1?"":"s"}, not 5.`}
-        </p>
-        <p style={{margin:"0 0 28px",fontSize:"17px",color:"#7ecfb8",lineHeight:1.6}}>
-          {isIt
-            ? "La metodologia prevede esattamente 5 elementi di analisi nel quadrante ad alta priorità. Modifica i valori R e C degli elementi fino a raggiungere esattamente 5."
-            : "The methodology requires exactly 5 analysis elements in the high-priority quadrant. Adjust the R and C values until you reach exactly 5."}
-        </p>
-        <div style={{display:"flex",justifyContent:"flex-end"}}>
-          <button style={{padding:"12px 28px",borderRadius:"8px",border:"1px solid rgba(253,224,71,.5)",background:"rgba(253,224,71,.12)",color:"#fde047",fontSize:"16px",fontWeight:700,cursor:"pointer"}} onClick={()=>setSynthWarnOpen(false)}>
-            {isIt?"Torna alla matrice →":"Back to the matrix →"}
-          </button>
-        </div>
-      </div>
-    </div>}
     <div style={{position:"fixed",top:0,left:0,right:0,height:"4px",background:"#3b82f4",zIndex:9999,pointerEvents:"none"}}/>
     <div style={{position:"fixed",bottom:0,left:0,right:0,height:"4px",background:"#39efb4",zIndex:9999,pointerEvents:"none"}}/>
     <header className="missionNav missionNavTrust">
@@ -1238,44 +1176,20 @@ export function PriorityMatrixScreen({
             <span style={{fontSize:"13px",color:"#7ecfb8",fontFamily:"var(--font-geist-mono,monospace)"}}>{isIt?"Scenari compilati":"Scenarios filled"}</span>
           </div>
         </div>
-        {/* ── Banner avviso count ─────────────────────────────────────────── */}
-        {highCount!==5&&<div style={{flexShrink:0,display:"flex",alignItems:"center",gap:"14px",padding:"10px 18px",marginBottom:"6px",borderRadius:"10px",background:"rgba(253,224,71,.10)",border:"2px solid rgba(253,224,71,.55)"}}>
-          <span style={{fontSize:"28px",lineHeight:1}}>⚠️</span>
-          <p style={{margin:0,fontSize:"clamp(16px,1.4vw,20px)",fontWeight:700,color:"#fde047",lineHeight:1.35}}>
-            {isIt
-              ? `Quadrante R>5 e C>5: ${highCount} element${highCount===1?"o":"i"} su 5 richiesti. Apri un riquadro e modifica R o C per arrivare esattamente a 5.`
-              : `R>5 and C>5 quadrant: ${highCount} element${highCount===1?"":"s"} out of 5 required. Open a box and adjust R or C to reach exactly 5.`}
-          </p>
-        </div>}
         <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 0 4px",width:"100%",gap:"16px",flexShrink:0}}>
           <div style={{display:"flex",gap:"16px",alignItems:"flex-start",flex:1,minWidth:0}}>
             <p style={{margin:0,fontSize:"clamp(16px,1.3vw,20px)",lineHeight:1.4,color:"#5a9e88",flex:1,minWidth:0}}>
-              {highCount===5&&ucNeeds.length>0&&!allUcDone
-                ? (isIt
-                    ? "Seleziona gli scenari nei riquadri evidenziati (R>5 e C>5) prima di procedere."
-                    : "Select scenarios in the highlighted boxes (R>5 and C>5) before proceeding.")
-                : highCount===5
-                  ? (isIt
-                      ? "La matrice determina l'ordine delle aree di approfondimento: le esigenze ad alta priorità guidano la sequenza delle sfide che affronterai."
-                      : "The matrix determines the order of focus areas: high-priority needs guide the sequence of challenges you will face.")
-                  : ""}
-            </p>
-            <p style={{margin:0,fontSize:"clamp(16px,1.3vw,20px)",lineHeight:1.4,color:"#fde047",flex:1,minWidth:0,padding:"8px 14px",borderRadius:"8px",background:"rgba(253,224,71,.06)",border:"1px solid rgba(253,224,71,.25)"}}>
               {isIt
-                ? "Compila 5 elementi nel quadrante priorità per poter proseguire. Puoi cambiare i valori di priorità nei box o trascinando i box con il mouse."
-                : "Fill in 5 elements in the priority quadrant to proceed. You can change priority values inside each box or by dragging boxes with the mouse."}
+                ? "La matrice determina l'ordine delle aree di approfondimento: le esigenze ad alta priorità guidano la sequenza delle sfide che affronterai. Puoi cambiare i valori di priorità nei box o trascinando i box con il mouse."
+                : "The matrix determines the order of focus areas: high-priority needs guide the sequence of challenges you will face. You can change priority values inside each box or by dragging boxes with the mouse."}
             </p>
           </div>
           {pmFromBriefing
             ? <button className="actionButton" style={{flexShrink:0,width:"auto"}} onClick={()=>{setPmFromBriefing(false);setScreen("compare");}}>{isIt?"Continua verso l'AS-IS":"Continue to AS-IS"}<b> →</b></button>
             : <button
                 className="actionButton"
-                style={{flexShrink:0,width:"auto",opacity:(allUcDone&&highCount===5)?1:0.35,filter:(allUcDone&&highCount===5)?"none":"grayscale(0.6)"}}
-                onClick={()=>{
-                  if(highCount!==5){setSynthWarnOpen(true);return;}
-                  if(!allUcDone){return;}
-                  setScreen("ilTuoReport");
-                }}
+                style={{flexShrink:0,width:"auto"}}
+                onClick={()=>setScreen("ilTuoReport")}
               >{isIt?"Genera la sintesi e costruisci la roadmap":"Generate the summary and build the roadmap"}<b> →</b></button>
           }
         </div>
@@ -1296,9 +1210,6 @@ export function PriorityMatrixScreen({
           if(!need) return null;
           const scenarios = USE_CASE_SCENARIOS[ucOpen] ?? [];
           const hasScenarios = scenarios.length > 0;
-          const MAX_UC = 2;
-          const canConfirm = !hasScenarios || ucDraft.length > 0;
-          const atMax = ucDraft.length >= MAX_UC;
           // Stepper helper inline
           const RVal = needRelevance[need.id] ?? need.relNorm;
           const CVal = needCriticality[need.id] ?? need.crit;
@@ -1325,8 +1236,8 @@ export function PriorityMatrixScreen({
               {/* Instruction — solo se ci sono scenari */}
               {hasScenarios&&<p style={{margin:"0 0 20px",fontSize:"22px",color:"#7ecfb8",lineHeight:1.5,padding:"14px 18px",background:"rgba(57,239,180,.06)",borderRadius:"8px",borderLeft:"4px solid rgba(57,239,180,.4)"}}>
                 {isIt
-                  ? "Seleziona tutti gli use case che sono significativi nella tua realtà. Identificati con il ruolo se citato. Devi sceglierne almeno uno per continuare, massimo due. Quando hai finito premi ✕ in alto a destra."
-                  : "Select all use cases that are significant in your context. Identify with the role if mentioned. You must choose at least one to continue, maximum two. When done, press ✕ in the top right."}
+                  ? "Seleziona gli use case che sono significativi nella tua realtà. Identificati con il ruolo se citato. Quando hai finito premi ✕ in alto a destra."
+                  : "Select the use cases that are significant in your context. Identify with the role if mentioned. When done, press ✕ in the top right."}
               </p>}
               {/* Two-column body */}
               <div style={{display:"flex",gap:"28px",flex:1,minHeight:0}}>
@@ -1334,13 +1245,11 @@ export function PriorityMatrixScreen({
                 <div style={{flex:1,display:"flex",flexDirection:"column",gap:"10px",marginBottom:"24px",overflowY:"auto"}}>
                   {hasScenarios ? scenarios.map((uc,i)=>{
                     const checked = ucDraft.includes(i);
-                    const disabled = !checked && atMax;
-                    return <label key={i} style={{display:"flex",alignItems:"flex-start",gap:"16px",padding:"14px 18px",borderRadius:"10px",background:checked?"rgba(57,239,180,.1)":disabled?"rgba(255,255,255,.015)":"rgba(255,255,255,.03)",border:`1px solid ${checked?"rgba(57,239,180,.45)":disabled?"rgba(255,255,255,.05)":"rgba(255,255,255,.1)"}`,cursor:disabled?"not-allowed":"pointer",transition:"background .15s,border-color .15s",opacity:disabled?0.4:1}}>
-                      <input type="checkbox" checked={checked} disabled={disabled} onChange={()=>{
-                        if(disabled) return;
+                    return <label key={i} style={{display:"flex",alignItems:"flex-start",gap:"16px",padding:"14px 18px",borderRadius:"10px",background:checked?"rgba(57,239,180,.1)":"rgba(255,255,255,.03)",border:`1px solid ${checked?"rgba(57,239,180,.45)":"rgba(255,255,255,.1)"}`,cursor:"pointer",transition:"background .15s,border-color .15s"}}>
+                      <input type="checkbox" checked={checked} onChange={()=>{
                         setUcDraft(prev=>prev.includes(i)?prev.filter(x=>x!==i):[...prev,i]);
-                      }} style={{marginTop:"4px",width:"22px",height:"22px",flexShrink:0,accentColor:"#39efb4",cursor:disabled?"not-allowed":"pointer"}}/>
-                      <span style={{fontSize:"22px",color:checked?"#e8f5ef":disabled?"#4a7a6a":"#9dbfb5",lineHeight:1.55}}>{uc}</span>
+                      }} style={{marginTop:"4px",width:"22px",height:"22px",flexShrink:0,accentColor:"#39efb4",cursor:"pointer"}}/>
+                      <span style={{fontSize:"22px",color:checked?"#e8f5ef":"#9dbfb5",lineHeight:1.55}}>{uc}</span>
                     </label>;
                   }) : <p style={{margin:"auto 0",fontSize:"18px",color:"#4a7a6a",fontStyle:"italic"}}>{isIt?"Nessuno scenario disponibile per questo elemento.":"No scenarios available for this element."}</p>}
                 </div>
@@ -1374,19 +1283,12 @@ export function PriorityMatrixScreen({
               </div>
               {/* Footer */}
               <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:"12px",marginTop:"8px"}}>
-                <span style={{fontSize:"22px",color:atMax?"#fde047":canConfirm?"#39efb4":"#5a9e88",fontFamily:"monospace"}}>
-                  {!hasScenarios
-                    ? ""
-                    : ucDraft.length===0
-                      ? (isIt?"Seleziona almeno uno scenario":"Select at least one scenario")
-                      : atMax
-                        ? (isIt?`Massimo ${MAX_UC} scenari selezionati`:`Maximum ${MAX_UC} scenarios selected`)
-                        : (isIt?`${ucDraft.length} scenario/i selezionati`:`${ucDraft.length} scenario(s) selected`)}
+                <span style={{fontSize:"22px",color:"#39efb4",fontFamily:"monospace"}}>
+                  {hasScenarios && ucDraft.length>0 ? (isIt?`${ucDraft.length} scenario/i selezionati`:`${ucDraft.length} scenario(s) selected`) : ""}
                 </span>
                 <button
-                  disabled={!canConfirm}
                   onClick={closeUcPopup}
-                  style={{padding:"14px 32px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.5)",background:"rgba(57,239,180,.15)",color:"#39efb4",fontSize:"26px",fontWeight:700,cursor:"pointer",transition:"all .15s",opacity:canConfirm?1:0.35}}>
+                  style={{padding:"14px 32px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.5)",background:"rgba(57,239,180,.15)",color:"#39efb4",fontSize:"26px",fontWeight:700,cursor:"pointer",transition:"all .15s"}}>
                   {!hasScenarios ? (isIt?"Chiudi":"Close") : (isIt?"Conferma →":"Confirm →")}
                 </button>
               </div>

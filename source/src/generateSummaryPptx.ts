@@ -297,6 +297,21 @@ export interface SummaryPptxData {
   sustainabilityReportSince?: number | "mai";
   ucSelections?: Record<string, number[]>;
   ucScenarios?: Record<string, string[]>;
+  // Contenuto della pagina "Sintesi Esigenze Rilevate" (scoping) per la slide Roadmap
+  roadmap?: {
+    phase1: string[];
+    phase2: string[];
+    totalSites: number;
+    perSite: number;
+    sitesAccounts: number;
+    corporateSocial: number;
+    corporateScope3: number;
+    totalAccounts: number;
+    connectors: {
+      fase1: { simple: number; medium: number; advanced: number };
+      fase2: { simple: number; medium: number; advanced: number };
+    };
+  };
 }
 
 export function generateSummaryPptx(data: SummaryPptxData) {

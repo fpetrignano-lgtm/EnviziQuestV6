@@ -25,9 +25,14 @@ import { SummaryScreen, NextStepScreen, ThankYouScreen, MilestoneScreen } from "
 import { ReportSlideshow } from "./screens/ReportSlideshow";
 import type { ReportData } from "./screens/ReportSlideshow";
 import { ApproachDataCopyScreen, PrioritiesScreen, PriorityDataScreen, PriorityMatrixScreen } from "./screens/PriorityScreens";
+import { FunctionalScopeScreen, ScopePhase } from "./screens/FunctionalScopeScreen";
+import { AdvancedScopeScreen } from "./screens/AdvancedScopeScreen";
+import { ScopeSummaryScreen, ScopeAccountsConfig } from "./screens/ScopeSummaryScreen";
+import { PRIMARY_SCOPE_ITEMS } from "./screens/FunctionalScopeScreen";
+import { ADVANCED_SCOPE_ITEMS } from "./screens/AdvancedScopeScreen";
 import { MissionFlowScreen } from "./screens/MissionFlowScreens";
 
-const ALL_SCREENS:Screen[]=["cover","onboarding","welcome","selectPath","blank1","companySetup","company","priorities","priorityData","priorityMatrix","ilTuoReport","reportSlideshow","reportSlideshowPng"];
+const ALL_SCREENS:Screen[]=["cover","onboarding","welcome","selectPath","blank1","companySetup","company","priorities","functionalScope","advancedScope","scopeSummary","priorityData","priorityMatrix","ilTuoReport","reportSlideshow","reportSlideshowPng"];
 
 export default function Home(){
   const [language,setLanguage]=useState<Language>("it"); const [profile,setProfile]=useState<Profile|null>(null); const [screen,setScreenState]=useState<Screen>("cover"); const [screenHistory,setScreenHistory]=useState<Screen[]>([]); const [priorities,setPriorities]=useState<Priority[]>(defaultPriorities); const [selectedMission,setSelectedMission]=useState(0); const [negativeChoice,setNegativeChoice]=useState<"form"|"postpone">("form"); const [pendingOutcome,setPendingOutcome]=useState<Outcome>("positive"); const [missionParameters,setMissionParameters]=useState<Record<number,string[]>>({}); const [missionOutcomes,setMissionOutcomes]=useState<Record<number,Outcome>>({}); const [missionOrder,setMissionOrder]=useState<number[]>([0,3,5,2,1,4]); const [trustScore,setTrustScore]=useState(30); const [approachBiz,setApproachBiz]=useState(""); const [approachData,setApproachData]=useState(""); const [contactEmail,setContactEmail]=useState(""); const [asIsRatings,setAsIsRatings]=useState<Record<number,("alto"|"medio"|"basso")[]>>({});
@@ -228,9 +233,48 @@ export default function Home(){
   };
   const [userName,setUserName]=useState("");
   const [questName,setQuestName]=useState("");
+  const [businessGuideCategory,setBusinessGuideCategory]=useState<string>("all");
+  const [businessGuideId,setBusinessGuideId]=useState<string|undefined>(undefined);
+  const [adminGuideCategory,setAdminGuideCategory]=useState<string>("all");
+  const [adminGuideId,setAdminGuideId]=useState<string|undefined>(undefined);
+  const handleOpenAdminGuide=(category="all",guideId?:string)=>{setAdminGuideCategory(category);setAdminGuideId(guideId);setScreen("adminGuide");};
+  const handleOpenBusinessGuide=(category="all",guideId?:string)=>{setBusinessGuideCategory(category);setBusinessGuideId(guideId);setScreen("businessGuide");};
   const getSavedQuestKeys=():string[]=>{const keys:string[]=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k?.startsWith("envizi-quest-save-"))keys.push(k.replace("envizi-quest-save-",""));}return keys.sort();};
   const [lastSavedAt,setLastSavedAt]=useState<Date|null>(null);
-  const saveQuest=(name:string)=>{if(!name.trim())return;const data={userName,language,profile,priorities,prioExperience,missionOrder,missionOutcomes,missionParameters,trustScore,companyName,companySector,companyDims,companyMarket,esgReadiness,asIsRatings,dataNeeds,needRelevance,needCriticality,needIncluded,screen,companyLogo,workshopDate,consultantName,participantRole,participantCompany,businessUnit,revenueYear,siteTable,frameworkChecks,sustainabilityReportSince,pdCustomLabels,pdCustomMemos,ucSelections};localStorage.setItem(`envizi-quest-save-${name.trim()}`,JSON.stringify(data));setLastSavedAt(new Date());};
+  const [scopePhases, setScopePhases] = useState<Record<string, ScopePhase>>({
+    "base-data-mgmt": "fase1",
+    "scope-1-2": "fase1",
+    "scope-3": "fase1",
+    "esg-reporting-frameworks": "fase1",
+    "connector-addon": "fase1",
+  });
+  const [scopeNotes, setScopeNotes] = useState<Record<string, string>>({});
+  const [connectorConfig, setConnectorConfig] = useState<{
+    fase1: { simple: number; medium: number; advanced: number };
+    fase2: { simple: number; medium: number; advanced: number };
+  }>({
+    fase1: { simple: 0, medium: 0, advanced: 0 },
+    fase2: { simple: 0, medium: 0, advanced: 0 },
+  });
+
+  const [advancedScopePhases, setAdvancedScopePhases] = useState<Record<string, ScopePhase>>({
+    "scope3-supply-chain-intel": "none",
+    "supplier-engagement": "none",
+    "target-setting-tracking": "none",
+    "building-benchmarks": "none",
+    "surveys-assessments": "none",
+    "sustainability-program-tracking": "none",
+    "bill-analytics": "none",
+    "interval-meter-analytics": "none",
+    "api-access-addon": "none",
+    "data-export-addon": "none",
+    "planning-analytics-addon": "none",
+    "sandbox-addon": "none",
+  });
+  const [advancedScopeNotes, setAdvancedScopeNotes] = useState<Record<string, string>>({});
+  const [scopeAccounts, setScopeAccounts] = useState<ScopeAccountsConfig>({ perSite: 15, corporateSocial: 100, corporateScope3: 100 });
+
+  const saveQuest=(name:string)=>{if(!name.trim())return;const data={userName,language,profile,priorities,prioExperience,missionOrder,missionOutcomes,missionParameters,trustScore,companyName,companySector,companyDims,companyMarket,esgReadiness,asIsRatings,dataNeeds,needRelevance,needCriticality,needIncluded,screen,companyLogo,workshopDate,consultantName,participantRole,participantCompany,businessUnit,revenueYear,siteTable,frameworkChecks,sustainabilityReportSince,pdCustomLabels,pdCustomMemos,ucSelections,scopePhases,scopeNotes,connectorConfig,advancedScopePhases,advancedScopeNotes,scopeAccounts};localStorage.setItem(`envizi-quest-save-${name.trim()}`,JSON.stringify(data));setLastSavedAt(new Date());};
   const loadQuest=(name:string)=>{
     const raw=localStorage.getItem(`envizi-quest-save-${name}`);
     if(!raw)return;
@@ -253,6 +297,12 @@ export default function Home(){
       if(d.esgReadiness)setEsgReadiness(d.esgReadiness);
       if(d.asIsRatings)setAsIsRatings(d.asIsRatings);
       if(d.dataNeeds)setDataNeeds(d.dataNeeds);
+      if(d.scopePhases)setScopePhases(d.scopePhases);
+      if(d.scopeNotes)setScopeNotes(d.scopeNotes);
+      if(d.connectorConfig)setConnectorConfig(d.connectorConfig);
+      if(d.advancedScopePhases)setAdvancedScopePhases(d.advancedScopePhases);
+      if(d.advancedScopeNotes)setAdvancedScopeNotes(d.advancedScopeNotes);
+      if(d.scopeAccounts)setScopeAccounts(d.scopeAccounts);
       if(d.companyLogo!=null)setCompanyLogo(d.companyLogo);
       if(d.workshopDate)setWorkshopDate(d.workshopDate);
       if(d.consultantName)setConsultantName(d.consultantName);
@@ -279,6 +329,9 @@ export default function Home(){
         "companySetup",
         "company",
         "priorities",
+        "functionalScope",
+        "advancedScope",
+        "scopeSummary",
         "priorityData",
         "priorityMatrix",
         "ilTuoReport",
@@ -457,7 +510,7 @@ export default function Home(){
   useEffect(()=>{
     let btn=document.getElementById("envizi-global-next") as HTMLButtonElement|null;
     if(!btn){btn=document.createElement("button");btn.id="envizi-global-next";btn.className="globalNext";btn.type="button";document.body.appendChild(btn)}
-    if (screen === "ilTuoReport") {
+    if (screen === "ilTuoReport" || screen === "blank1") {
       btn.innerHTML = `☰ <span>Menu</span>`;
       btn.disabled = false;
       const handleMenu = () => setScreen("selectPath");
@@ -465,10 +518,11 @@ export default function Home(){
       return () => btn?.removeEventListener("click", handleMenu);
     }
     const idx=ALL_SCREENS.indexOf(screen);
-    const next=idx>=0&&idx<ALL_SCREENS.length-1?ALL_SCREENS[idx+1]:null;
+    // Dal menu "Seleziona percorso" si avanza al percorso principale (Analisi Esigenze Azienda)
+    const next:Screen|null=screen==="selectPath"?"companySetup":(idx>=0&&idx<ALL_SCREENS.length-1?ALL_SCREENS[idx+1]:null);
     btn.innerHTML=`<span>${language==="it"?"Avanti":"Next"}</span> →`;
-    btn.disabled=!next||(!profile&&next!=="onboarding"&&next!=="welcome"&&next!=="selectPath");
-    const handleNext=()=>{if(next)setScreen(next)};
+    btn.disabled=!next||(screen!=="selectPath"&&!profile&&next!=="onboarding"&&next!=="welcome"&&next!=="selectPath");
+    const handleNext=()=>{if(!next)return;if(screen==="selectPath"&&!profile)setProfile("marco");setScreen(next)};
     btn.addEventListener("click",handleNext);
     return()=>btn?.removeEventListener("click",handleNext);
   },[language,screen,profile]);
@@ -559,6 +613,7 @@ export default function Home(){
     sectionIntro2:"Obiettivi della tua azienda",companySetup:"Configura la tua azienda",
     company:"La tua azienda",
     sectionIntro3:"Sfide di dati",priorities:"Priorità ESG",
+    functionalScope:"Esigenze funzionali Primarie",advancedScope:"Scope Moduli Avanzati",scopeSummary:"Sintesi Esigenze Rilevate",
     approachDataCopy:"Dagli obiettivi alle priorità",priorityData:"Esigenze gestione dati ESG",
     priorityMatrix:"Rilevanza vs Criticità",ilTuoReport:"Il tuo report ESG",
     reportSlideshow:"Report ESG",reportSlideshowPng:"Report ESG (PNG)",
@@ -849,11 +904,11 @@ export default function Home(){
 
 
 
-  if(screen==="selectPath")return <SelectPathScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} setP10SlideIdx={setP10SlideIdx} userName={userName}/>;
+  if(screen==="selectPath")return <SelectPathScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} setP10SlideIdx={setP10SlideIdx} userName={userName} onOpenAdminGuide={handleOpenAdminGuide} onOpenBusinessGuide={handleOpenBusinessGuide}/>;
 
-  if(screen==="adminGuide")return <AdminGuideScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} userName={userName} setP10SlideIdx={setP10SlideIdx}/>;
+  if(screen==="adminGuide")return <AdminGuideScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} userName={userName} setP10SlideIdx={setP10SlideIdx} initialCategory={adminGuideCategory} initialGuideId={adminGuideId}/>;
 
-  if(screen==="businessGuide")return <BusinessGuideScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} userName={userName} setP10SlideIdx={setP10SlideIdx}/>;
+  if(screen==="businessGuide")return <BusinessGuideScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} userName={userName} setP10SlideIdx={setP10SlideIdx} initialCategory={businessGuideCategory} initialGuideId={businessGuideId}/>;
 
   if(screen==="blank1")return <Blank1 language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} p10SlideIdx={p10SlideIdx} setP10SlideIdx={setP10SlideIdx} P10_SLIDES={P10_SLIDES}/>;
 
@@ -928,6 +983,22 @@ export default function Home(){
       sustainabilityReportSince,
       ucSelections,
       ucScenarios:USE_CASE_SCENARIOS,
+      roadmap:(()=>{
+        const items=[
+          ...PRIMARY_SCOPE_ITEMS.map(i=>({i,ph:scopePhases[i.id]||i.defaultPhase})),
+          ...ADVANCED_SCOPE_ITEMS.map(i=>({i,ph:advancedScopePhases[i.id]||i.defaultPhase})),
+        ];
+        const names=(ph:string)=>items.filter(x=>x.ph===ph).map(x=>isIt?x.i.title:x.i.titleEn);
+        const sites=siteTotalAll();
+        const sitesAccounts=sites*scopeAccounts.perSite;
+        return {
+          phase1:names("fase1"),phase2:names("fase2"),
+          totalSites:sites,perSite:scopeAccounts.perSite,sitesAccounts,
+          corporateSocial:scopeAccounts.corporateSocial,corporateScope3:scopeAccounts.corporateScope3,
+          totalAccounts:sitesAccounts+scopeAccounts.corporateSocial+scopeAccounts.corporateScope3,
+          connectors:connectorConfig,
+        };
+      })(),
     };
   };
 
@@ -977,10 +1048,15 @@ export default function Home(){
 
   if(screen==="priorities"&&profile)return <PrioritiesScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} priorities={priorities} priorityIncluded={priorityIncluded} togglePriorityIncluded={togglePriorityIncluded} rankPriority={rankPriority} prioExperience={prioExperience} setPrioExpModal={setPrioExpModal} prioExpModal={prioExpModal} prioExpMode={prioExpMode} setPrioExpMode={setPrioExpMode} prioExpSelected={prioExpSelected} setPrioExpSelected={setPrioExpSelected} setPrioExperience={setPrioExperience} prioDefaultExp={prioDefaultExp} displayCompanyName={displayCompanyName} t={t} name={name} onSave={(n)=>{saveQuest(n);setQuestName(n);}} defaultSaveName={questName} skipDataCopyIntro/>;
 
+  if(screen==="functionalScope"&&profile)return <FunctionalScopeScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={()=>setScreen("priorities")} renderTrustBar={renderTrustBar} displayCompanyName={displayCompanyName} name={name} scopePhases={scopePhases} setScopePhases={setScopePhases} connectorConfig={connectorConfig} setConnectorConfig={setConnectorConfig} scopeNotes={scopeNotes} setScopeNotes={setScopeNotes} onSave={(n)=>{saveQuest(n);setQuestName(n);}} defaultSaveName={questName} onContinue={()=>setScreen("advancedScope")}/>;
+
+  if(screen==="advancedScope"&&profile)return <AdvancedScopeScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={()=>setScreen("functionalScope")} renderTrustBar={renderTrustBar} displayCompanyName={displayCompanyName} name={name} advancedScopePhases={advancedScopePhases} setAdvancedScopePhases={setAdvancedScopePhases} advancedScopeNotes={advancedScopeNotes} setAdvancedScopeNotes={setAdvancedScopeNotes} onSave={(n)=>{saveQuest(n);setQuestName(n);}} defaultSaveName={questName} onContinue={()=>setScreen("scopeSummary")}/>;
+
+  if(screen==="scopeSummary"&&profile)return <ScopeSummaryScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={()=>setScreen("advancedScope")} renderTrustBar={renderTrustBar} displayCompanyName={displayCompanyName} name={name} totalSites={siteTotalAll()} scopePhases={scopePhases} advancedScopePhases={advancedScopePhases} connectorConfig={connectorConfig} accounts={scopeAccounts} setAccounts={setScopeAccounts} onContinue={()=>setScreen("priorityData")}/>;
 
   if(screen==="priorityData"&&profile){
-    const goBackToPriorities=()=>{setScreenHistory(h=>h.filter(s=>s!=="approachDataCopy"&&s!=="priorityData"));setScreenState("priorities");};
-    return <PriorityDataScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBackToPriorities} renderTrustBar={renderTrustBar} priorities={priorities} priorityIncluded={priorityIncluded} dataNeeds={dataNeeds} needRelevance={needRelevance} setNeedRelevance={setNeedRelevance} needCriticality={needCriticality} setNeedCriticality={setNeedCriticality} needIncluded={needIncluded} toggleNeedIncluded={toggleNeedIncluded} isNeedIncluded={isNeedIncluded} pdHelpOpen={pdHelpOpen} setPdHelpOpen={setPdHelpOpen} needIdToMission={needIdToMission} needIdToCapability={needIdToCapability} displayCompanyName={displayCompanyName} t={t} name={name} pdCustomLabels={pdCustomLabels} setPdCustomLabels={setPdCustomLabels} pdCustomMemos={pdCustomMemos} setPdCustomMemos={setPdCustomMemos}/>;
+    const goBackToAdvancedScope=()=>{setScreenHistory(h=>h.filter(s=>s!=="approachDataCopy"&&s!=="priorityData"));setScreenState("scopeSummary");};
+    return <PriorityDataScreen language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBackToAdvancedScope} renderTrustBar={renderTrustBar} priorities={priorities} priorityIncluded={priorityIncluded} dataNeeds={dataNeeds} needRelevance={needRelevance} setNeedRelevance={setNeedRelevance} needCriticality={needCriticality} setNeedCriticality={setNeedCriticality} needIncluded={needIncluded} toggleNeedIncluded={toggleNeedIncluded} isNeedIncluded={isNeedIncluded} pdHelpOpen={pdHelpOpen} setPdHelpOpen={setPdHelpOpen} needIdToMission={needIdToMission} needIdToCapability={needIdToCapability} displayCompanyName={displayCompanyName} t={t} name={name} pdCustomLabels={pdCustomLabels} setPdCustomLabels={setPdCustomLabels} pdCustomMemos={pdCustomMemos} setPdCustomMemos={setPdCustomMemos}/>;
   }
 
 
@@ -1197,5 +1273,102 @@ export default function Home(){
   }
 
 
-  return <main className="onboarding" style={{position:"relative"}}>{onboardingZoomWarn&&<div style={{position:"fixed",inset:0,zIndex:99999,background:"rgba(7,18,15,.82)",display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setOnboardingZoomWarn(false)}><div style={{background:"#0d1f19",border:"1px solid rgba(57,239,180,.3)",borderRadius:"14px",padding:"28px 32px",maxWidth:"380px",width:"90vw",textAlign:"center",boxShadow:"0 8px 40px rgba(0,0,0,.6)"}} onClick={e=>e.stopPropagation()}><p style={{margin:"0 0 8px",fontSize:"13px",fontFamily:"var(--font-geist-mono,monospace)",letterSpacing:".14em",textTransform:"uppercase",color:"#39efb4"}}>Attenzione</p><p style={{margin:"0 0 20px",fontSize:"15px",color:"#e8f5ef",lineHeight:1.5}}>Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?</p><div style={{display:"flex",gap:"10px",justifyContent:"center"}}><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid rgba(57,239,180,.35)",background:"transparent",color:"#39efb4",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={()=>setOnboardingZoomWarn(false)}>Annulla</button><button style={{padding:"8px 22px",borderRadius:"8px",border:"1px solid #c84040",background:"rgba(200,64,64,.12)",color:"#ff8080",fontSize:"14px",cursor:"pointer",fontFamily:"inherit"}} onClick={dismissZoom}>Continua comunque</button></div></div></div>}<div className="welcomeBlueBar"/><div className="ambient ambientOne"/><div className="ambient ambientTwo"/><header className="topbar"><div className="brand"><span className="brandMark">e·</span><span>Envizi<br/>Impact Quest</span></div></header><section className="introPanel"><p className="eyebrow">{t.eyebrow}</p><h1>{t.title}</h1><p className="intro">{t.intro}</p><p className="thread">{t.sameStory}</p><p className="authorDisclaimer">{t.disclaimer}<a href="mailto:felice_petrignano@it.ibm.com">felice_petrignano@it.ibm.com</a></p></section><section className="choicePanel"><div className="profileSection" style={{marginTop:0}}><div className="profileTitle profileTitleHighlighted"><span className="choiceNumber">01</span><h2>Scegli il tuo profilo ESG</h2></div><div className="profilesWrap"><div className="profiles profilesGuided">{(["marco","luisa"] as Profile[]).map(p=><div key={p} className="profileCardWrap"><button className={`profileCard ${profile===p?"selected":""}`} onClick={()=>setProfile(p)}><img src={`./characters/${p}-neutral.png`} alt={p==="marco"?"Marco Rossi":"Luisa Bianchi"}/><div className="profileInfo"><span className="statusDot"/><div><strong>{p==="marco"?"Marco Rossi":"Luisa Bianchi"}</strong><small>{p==="marco"?t.maleRole:t.femaleRole}</small></div></div></button><button className="profileChooseBtn" onClick={()=>{setProfile(p);setScreen("welcome");}}>Scegli {p==="marco"?"Marco":"Luisa"} →</button></div>)}</div></div></div><p className="bobCredit">Sviluppato con IBM Bob</p></section><button className="backBtn" onClick={()=>setScreenState("cover")}>← Indietro</button><div className="welcomeBlueBar" style={{background:"#39efb4"}}/></main>;
+  return (
+    <main className="onboarding" style={{ position: "relative" }}>
+      {onboardingZoomWarn && (
+        <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "rgba(7,18,15,.82)", display: "flex", alignItems: "center", justifyContent: "center" }} onClick={() => setOnboardingZoomWarn(false)}>
+          <div style={{ background: "#0d1f19", border: "1px solid rgba(57,239,180,.3)", borderRadius: "14px", padding: "28px 32px", maxWidth: "380px", width: "90vw", textAlign: "center", boxShadow: "0 8px 40px rgba(0,0,0,.6)" }} onClick={e => e.stopPropagation()}>
+            <p style={{ margin: "0 0 8px", fontSize: "13px", fontFamily: "var(--font-geist-mono,monospace)", letterSpacing: ".14em", textTransform: "uppercase", color: "#39efb4" }}>Attenzione</p>
+            <p style={{ margin: "0 0 20px", fontSize: "15px", color: "#e8f5ef", lineHeight: 1.5 }}>Il rapporto di visualizzazione è ottimizzato per questa schermata. Sei sicuro di voler cambiare lo zoom?</p>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center" }}>
+              <button style={{ padding: "8px 22px", borderRadius: "8px", border: "1px solid rgba(57,239,180,.35)", background: "transparent", color: "#39efb4", fontSize: "14px", cursor: "pointer", fontFamily: "inherit" }} onClick={() => setOnboardingZoomWarn(false)}>Annulla</button>
+              <button style={{ padding: "8px 22px", borderRadius: "8px", border: "1px solid #c84040", background: "rgba(200,64,64,.12)", color: "#ff8080", fontSize: "14px", cursor: "pointer", fontFamily: "inherit" }} onClick={dismissZoom}>Continua comunque</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="welcomeBlueBar" />
+      <div className="ambient ambientOne" />
+      <div className="ambient ambientTwo" />
+      <header className="topbar">
+        <div className="brand"><span className="brandMark">e·</span><span>Envizi<br />Impact Quest</span></div>
+      </header>
+      <section className="introPanel">
+        <p className="eyebrow">{t.eyebrow}</p>
+        <h1>{t.title}</h1>
+        <p className="intro">{t.intro}</p>
+        <p className="thread">{t.sameStory}</p>
+        <p className="authorDisclaimer">
+          {language === "it" ? (
+            <>
+              Questa esperienza è stata ideata e realizzata da<br />
+              Felice Petrignano, Senior ESG Solution Engineer and Advisor, sulla base della propria esperienza e prospettiva professionale. I contenuti esprimono valutazioni personali e non rappresentano necessariamente posizioni ufficiali di IBM.
+            </>
+          ) : (
+            <>
+              This experience was conceived and developed by<br />
+              Felice Petrignano, Senior ESG Solution Engineer and Advisor, based on his professional experience and perspective. Its content reflects personal views and does not necessarily represent official IBM positions.
+            </>
+          )}
+          <a href="mailto:felice_petrignano@it.ibm.com">felice_petrignano@it.ibm.com</a>
+        </p>
+      </section>
+      <section className="choicePanel" style={{ display: "flex", flexDirection: "row", alignItems: "center", justifyContent: "center", gap: "32px", position: "relative" }}>
+        <div style={{
+          borderRadius: "20px",
+          overflow: "hidden",
+          border: "2px solid rgba(57,239,180,0.45)",
+          boxShadow: "0 16px 48px rgba(0,0,0,0.7), 0 0 36px rgba(57,239,180,0.25)",
+          background: "rgba(7,24,19,0.85)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0
+        }}>
+          <img
+            src="./onboarding-image.png"
+            alt="Envizi ESG Team"
+            style={{
+              maxHeight: "936px",
+              width: "auto",
+              objectFit: "contain",
+              display: "block"
+            }}
+          />
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "16px" }}>
+          <button
+            className="actionButton"
+            style={{
+              fontSize: "clamp(22px, 1.8vw, 30px)",
+              fontWeight: 800,
+              padding: "18px 48px",
+              borderRadius: "14px",
+              background: "var(--teal)",
+              color: "#04110d",
+              border: "none",
+              cursor: "pointer",
+              letterSpacing: ".04em",
+              boxShadow: "0 8px 30px rgba(57,239,180,0.55)",
+              transition: "all .2s ease",
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "12px",
+              whiteSpace: "nowrap"
+            }}
+            onClick={() => {
+              setProfile("marco");
+              setScreen("welcome");
+            }}
+          >
+            Partiamo →
+          </button>
+          <p className="bobCredit" style={{ margin: 0, paddingLeft: "4px" }}>Sviluppato con IBM Bob</p>
+        </div>
+      </section>
+      <button className="backBtn" onClick={() => setScreenState("cover")}>← Indietro</button>
+      <div className="welcomeBlueBar" style={{ background: "#39efb4" }} />
+    </main>
+  );
 }
