@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import type { CommonProps } from "./types";
+import type { Screen } from "../types";
 
 interface Props extends CommonProps {
   p10SlideIdx: number;
   setP10SlideIdx: React.Dispatch<React.SetStateAction<number>>;
   P10_SLIDES: string[];
   onDownloadPptx?: (lang: "it"|"en") => void;
-  onRefreshAndView?: (lang: "it"|"en") => Promise<void>;
+  onRefreshAndView?: (lang: "it"|"en") => Promise<Screen|void>;
 }
 
 export function Blank1({language,profile,setLanguage,setScreen,reset,renderTrustBar,p10SlideIdx,setP10SlideIdx,P10_SLIDES}:Props){
@@ -72,8 +73,8 @@ export function IlTuoReport({language,profile,setLanguage,setScreen,reset,render
     setRefreshError(null);
     setLanguage(lang);
     try {
-      await onRefreshAndView(lang);
-      setScreen("reportSlideshowPng");
+      const target = await onRefreshAndView(lang);
+      setScreen(target || "reportSlideshowPng");
     } catch(e:any) {
       setRefreshError(isIt ? "Errore aggiornamento slide. Riprova." : "Slide update failed. Please retry.");
     } finally {

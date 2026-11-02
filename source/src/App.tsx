@@ -1009,11 +1009,11 @@ export default function Home(){
 
   if(screen==="reportSlideshowPng"&&profile)return <P10Slideshow language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} p10SlideIdx={reportSlideIdx} setP10SlideIdx={setReportSlideIdx} P10_SLIDES={REPORT_SLIDES_BUSTED} backScreen="ilTuoReport"/>;
 
-  const refreshAndViewReport=async(lang:"it"|"en")=>{
-    // In produzione (GitHub Pages) non c'è il backend soffice/pdftoppm —
-    // apriamo direttamente lo slideshow con le slide statiche già presenti.
+  const refreshAndViewReport=async(lang:"it"|"en"):Promise<Screen|void>=>{
+    // In produzione (GitHub Pages) non c'è il backend soffice/pdftoppm:
+    // apriamo lo slideshow React che legge i dati inseriti nell'app.
     const isProd=import.meta.env.PROD;
-    if(isProd){setPngCacheBust(Date.now());setReportSlideIdx(0);return;}
+    if(isProd)return "reportSlideshow";
     const buf=await generateTemplatePptxBuffer(buildPptxData(lang==="it"));
     // btoa(String.fromCharCode(...spread)) crasha con file >~1MB — usiamo chunks
     const bytes=new Uint8Array(buf);
