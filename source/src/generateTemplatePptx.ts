@@ -1,6 +1,6 @@
 import JSZip from "jszip";
 import type { SummaryPptxData } from "./generateSummaryPptx";
-import { SCENARIO_MODULES, SCENARIO_MODULES_TOBE, NEED_COL_C } from "./constants";
+import { SCENARIO_MODULES, SCENARIO_MODULES_TOBE, NEED_COL_C, fmtNum } from "./constants";
 import iconCredito     from "../public/icon-credito.png";
 import iconCompliance  from "../public/icon-compliance.png";
 import iconClienti     from "../public/icon-clienti.png";
@@ -183,6 +183,23 @@ function prioAtRank(
 //  2. Para-level: for placeholders contained within a single paragraph, replace
 //     in-place preserving the paragraph structure.
 
+// Le chiavi puramente numeriche (es. "500", "54", "8") sono segnaposto dei valori
+// delle stat card: vanno sostituite UNA sola volta e solo se sono l'INTERO testo
+// (seconda passata). Con split/join su ogni passata il valore già sostituito
+// veniva ri-sostituito (es. "500" → "9.500" → "9.9.500").
+const isNumericKey = (k: string) => /^\d+$/.test(k);
+
+function applyReplacements(text: string, replacements: Record<string, string>, allowNumeric: boolean): string {
+  if (allowNumeric && isNumericKey(text) && Object.prototype.hasOwnProperty.call(replacements, text)) {
+    return replacements[text];
+  }
+  let out = text;
+  for (const [ph, val] of Object.entries(replacements)) {
+    if (!isNumericKey(ph)) out = out.split(ph).join(val);
+  }
+  return out;
+}
+
 function replaceInSlideXml(xml: string, replacements: Record<string, string>): string {
   // Pass 1 — shape-level (handles multi-paragraph placeholders)
   xml = xml.replace(/(<p:txBody>)([\s\S]*?)(<\/p:txBody>)/g, (match, open, body, close) => {
@@ -196,10 +213,7 @@ function replaceInSlideXml(xml: string, replacements: Record<string, string>): s
     });
     const fullText = paraTexts.join("");
 
-    let newText = fullText;
-    for (const [ph, val] of Object.entries(replacements)) {
-      newText = newText.split(ph).join(val);
-    }
+    const newText = applyReplacements(fullText, replacements, false);
     if (newText === fullText) return match; // no multi-para placeholder matched
 
     // Extract body-level props (bodyPr, lstStyle) and first rPr
@@ -221,10 +235,7 @@ function replaceInSlideXml(xml: string, replacements: Record<string, string>): s
       .map((t) => t.replace(/<a:t>|<\/a:t>/g, ""))
       .join("");
 
-    let newText = fullText;
-    for (const [ph, val] of Object.entries(replacements)) {
-      newText = newText.split(ph).join(val);
-    }
+    const newText = applyReplacements(fullText, replacements, true);
 
     if (newText === fullText) return paraMatch;
 
@@ -270,14 +281,100 @@ function fixSlide2ReadinessFont(xml: string): string {
   );
 }
 
-// ── Slide 5 reputazione note nudge ───────────────────────────────────────────
-// Shifts the note text box of the reputazione slot (id=50) slightly downward
-// so it aligns better visually with the other bottom-row note boxes.
-function nudgeSlide5ReputazioneNote(xml: string): string {
+// ── Slide 5 note boxes: altezza rigida ───────────────────────────────────────
+// Le caselle-nota (id 39,42,44,46,48,50) nel template hanno spAutoFit: l'altezza segue la
+// quantità di testo, quindi il testo (centrato in verticale) finiva a livelli diversi da box
+// a box (es. 6/6 con meno righe del 5/6). Le rendo rigide (noAutofit) e tutte alte come quella
+// del 5/6 (id=48, cy=1384995). La nota del 6/6 (id=50) parte dalla stessa y della nota del 5/6
+// (3502152), così il testo è centrato sullo stesso livello.
+const SLIDE5_NOTE_IDS = [39, 42, 44, 46, 48, 50];
+const SLIDE5_NOTE_CY = 1384995;
+function fixSlide5NotesRigid(xml: string): string {
+  for (const id of SLIDE5_NOTE_IDS) {
+    const re = new RegExp(`(<p:sp>(?:(?!<p:sp>)[\\s\\S])*?<p:cNvPr[^>]*\\bid="${id}"[^>]*>[\\s\\S]*?</p:sp>)`);
+    xml = xml.replace(re, (sp) => {
+      let out = sp
+        .replace(/<a:spAutoFit\/>/g, "<a:noAutofit/>")
+        .replace(/(<a:ext cx="\d+" cy=")\d+(")/, (_m, a, b) => `${a}${SLIDE5_NOTE_CY}${b}`);
+      // Nota 6/6: stessa x della nota 3/6 (id=44, x=9677410) e stessa y della nota 5/6.
+      if (id === 50) out = out.replace(/<a:off x="\d+" y="\d+"/, `<a:off x="9677410" y="3502152"`);
+      return out;
+    });
+  }
+  return xml;
+}
+
+// ── Slide 5 box 6 resize/align ───────────────────────────────────────────────
+// Card dello slot 6 (immagine id=61). Le PNG delle card hanno margini trasparenti diversi,
+// quindi la cornice NON può essere copiata dal box 5: va calcolata sulla card VISIBILE.
+// Misure sui pixel delle PNG (righe/colonne della card visibile, estremi inclusi):
+//   box 5 (id=66, 310×130 px, cornice 3937000×1651000 @ y=3347112): righe 1–124 (12700 EMU/px)
+//   box 6 (id=61, 313×129 px): righe 4–127, colonne 33–310
+//   box 3 (id=69, 310×137 px, cornice x=8138437 w=3975100): colonne 39–302
+// Obiettivo: stessa altezza e stesso livello (top/bottom) del box 5, bordi sinistro e destro
+// visibili allineati al box 3.
+//   cy = 129·12700 = 1638300 · y = 3359812 − 4·12700 = 3309012
+//   visibile 3 = [8638542, 12011050] → 12175.1 EMU/px · cx = 313·12175.1 = 3810806 · x = 8638542 − 33·12175.1 = 8236764
+function resizeSlide5Box6(xml: string): string {
   return xml.replace(
-    /(<p:sp>(?:(?!<p:sp>)[\s\S])*?<p:cNvPr[^>]*\bid="50"[^>]*>[\s\S]*?<a:off x="[^"]*" y=")(\d+)(")/,
-    (_, pre, _y, post) => `${pre}3679584${post}`
+    /(<p:pic>(?:(?!<p:pic>)[\s\S])*?<p:cNvPr[^>]*\bid="61"[^>]*>[\s\S]*?<a:off x=")\d+(" y=")\d+("\/><a:ext cx=")\d+(" cy=")\d+(")/,
+    (_m, a, b, c, d, e) => `${a}8236764${b}3309012${c}3810806${d}1638300${e}`
   );
+}
+
+// ── Slide 5 box 2 vertical align ─────────────────────────────────────────────
+// Le immagini-card hanno margini trasparenti diversi e vengono riassegnate agli slot in base
+// alle priorità (remapSlide5Icons), quindi il bordo alto VISIBILE dipende dall'immagine.
+// Calcolo il bordo alto visibile di ogni card della riga alta (y + riga_top·cy/altezza_px) e
+// sposto lo slot 2 (id=70) così che il suo bordo alto coincida con la media di slot 1 (id=68)
+// e slot 3 (id=69). Righe del bordo alto / altezze in px per rId (misurate sui PNG).
+const SLIDE5_CARD_TOP_PX: Record<string, [number, number]> = {
+  rId4: [4, 136], rId5: [4, 129], rId6: [1, 130], rId7: [5, 132], rId8: [8, 137], rId9: [8, 141],
+};
+function alignSlide5Box2(xml: string): string {
+  const picRe = (id: number) =>
+    new RegExp(`(<p:pic>(?:(?!<p:pic>)[\\s\\S])*?<p:cNvPr[^>]*\\bid="${id}"[\\s\\S]*?r:embed=")([^"]+)("[\\s\\S]*?<a:off x="\\d+" y=")(\\d+)("/><a:ext cx="\\d+" cy=")(\\d+)(")`);
+  const visTop = (id: number): number | null => {
+    const m = xml.match(picRe(id));
+    const t = m && SLIDE5_CARD_TOP_PX[m[2]];
+    return m && t ? Number(m[4]) + (t[0] * Number(m[6])) / t[1] : null;
+  };
+  const t1 = visTop(68), t3 = visTop(69), t2 = visTop(70);
+  if (t1 === null || t3 === null || t2 === null) return xml;
+  const delta = Math.round((t1 + t3) / 2 - t2);
+  return xml.replace(picRe(70), (_m, a, r, c, y, d, cy, e) => `${a}${r}${c}${Number(y) + delta}${d}${cy}${e}`);
+}
+
+// ── Slide 5 title 5/6 reposition ─────────────────────────────────────────────
+// Titolo dello slot 5 (rettangolo id=12): x allineata al titolo 2/6 (id=4, x=4399234),
+// y spostata leggermente in basso (3323842 → 3373842, +50000 EMU ≈ 4pt).
+function moveSlide5Title5(xml: string): string {
+  return xml.replace(
+    /(<p:sp>(?:(?!<p:sp>)[\s\S])*?<p:cNvPr[^>]*\bid="12"[^>]*>[\s\S]*?<a:off x=")\d+(" y=")\d+(")/,
+    (_m, a, b, c) => `${a}4399234${b}3373842${c}`
+  );
+}
+
+// ── Slide 5 box 1 widen ──────────────────────────────────────────────────────
+// Allarga verso sinistra la card dello slot 1 (immagine id=68) allineandola alla card
+// dello slot 4 (id=60): x 239629 → 127277, cx 3775834 → 3888186. Il bordo destro
+// (4015463) resta identico a quello del box 4.
+function widenSlide5Box1(xml: string): string {
+  return xml.replace(
+    /(<p:pic>(?:(?!<p:pic>)[\s\S])*?<p:cNvPr[^>]*\bid="68"[^>]*>[\s\S]*?<a:off x=")\d+(" y="\d+"\/><a:ext cx=")\d+(")/,
+    (_m, a, b, c) => `${a}127277${b}3888186${c}`
+  );
+}
+
+// ── Slide 5 notes font reducer ───────────────────────────────────────────────
+// Riduce del 20% il font dei box-nota degli obiettivi (id 39,42,44,46,48,50:
+// sz 1100 → 880). I titoli "N/6 …" (rettangoli id 4,6,8,10,12,27) restano al 100%.
+function reduceSlide5NotesFont(xml: string): string {
+  for (const id of [39, 42, 44, 46, 48, 50]) {
+    const re = new RegExp(`(<p:sp>(?:(?!<p:sp>)[\\s\\S])*?<p:cNvPr[^>]*\\bid="${id}"[^>]*>[\\s\\S]*?</p:sp>)`);
+    xml = xml.replace(re, (spBlock) => spBlock.replace(/\bsz="1100"/g, `sz="880"`));
+  }
+  return xml;
 }
 
 // ── Slide 6 title font reducer ────────────────────────────────────────────────
@@ -818,8 +915,8 @@ async function generateCompanySlidePng(data: SummaryPptxData, isIt: boolean): Pr
     const stats = [
       [isIt?"Settore":"Sector", data.sectorLabel],
       [isIt?"Mercato":"Market", data.marketLabel],
-      [isIt?"Fatturato":"Revenue", `${data.revenue} ${data.dimUnit}${data.revenueYear ? ` (${data.revenueYear})` : ""}`],
-      [isIt?"Dipendenti":"Employees", String(data.employees?.toLocaleString() ?? "—")],
+      [isIt?"Fatturato":"Revenue", `${fmtNum(data.revenue, isIt)} ${data.dimUnit}${data.revenueYear ? ` (${data.revenueYear})` : ""}`],
+      [isIt?"Dipendenti":"Employees", data.employees != null ? fmtNum(data.employees, isIt) : "—"],
     ];
     let y = 90;
     const statW = (W/2 - 72) / 2 - 8;
@@ -991,7 +1088,7 @@ function buildFindingsSummary(
   const maturity   = data.maturityTitle  || (isIt ? "in fase di strutturazione" : "in a structuring phase");
   const sector     = data.sectorLabel   || "";
   const market     = data.marketLabel   || "";
-  const employees  = data.employees     ? data.employees.toLocaleString() : "—";
+  const employees  = data.employees     ? fmtNum(data.employees, isIt) : "—";
   const totalSedi  = data.plants + data.offices + (data.dataCenters ?? 0);
 
   if (isIt) {
@@ -1554,13 +1651,16 @@ async function _generateTemplatePptxImpl(data: SummaryPptxData): Promise<void> {
     : (geoComplexityLevel === "low" ? "Low"   : geoComplexityLevel === "medium" ? "Medium" : "High");
   const geoComplexityColor = geoComplexityLevel === "low" ? "2E7D54" : geoComplexityLevel === "medium" ? "C07A00" : "C0392B";
   const slide3ComplexityText = isIt
-    ? `Complessità di reporting per ${resolvedCompanyName}: ${geoComplexityLabel}`
-    : `Reporting complexity for ${resolvedCompanyName}: ${geoComplexityLabel}`;
+    ? `Impatto su complessità del reporting di ${resolvedCompanyName}: ${geoComplexityLabel}`
+    : `Impact on reporting complexity of ${resolvedCompanyName}: ${geoComplexityLabel}`;
 
   // Slide2 title (shape id=2): company name + market presence + ESG focus
+  const mkt = data.marketLabel.toLowerCase();
+  const presenceIt = mkt === "solo italia" ? "presenza solo in Italia" : mkt === "europa" ? "presenza europea" : `presenza ${mkt}`;
+  const presenceEn = mkt === "italy only" ? "a presence in Italy only" : mkt === "europe" ? "a European presence" : `a ${mkt} presence`;
   const slide2Title = isIt
-    ? `${resolvedCompanyName} combina una presenza ${data.marketLabel.toLowerCase()} con una forte attenzione a ESG`
-    : `${resolvedCompanyName} combines a ${data.marketLabel.toLowerCase()} presence with a strong focus on ESG`;
+    ? `${resolvedCompanyName} combina una ${presenceIt} con una forte attenzione a ESG`
+    : `${resolvedCompanyName} combines ${presenceEn} with a strong focus on ESG`;
 
   // Slide 5 (priorities): fill each of the 6 fixed cells.
   // Template cell order (by shape id in slide5):
@@ -1625,14 +1725,19 @@ async function _generateTemplatePptxImpl(data: SummaryPptxData): Promise<void> {
     "Incontro di lavoro · 2026":
       `${isIt ? "Incontro di lavoro" : "Working session"} · ${new Date().getFullYear()}`,
 
+    // ── Slide 3 title (testo fisso nel template) ──
+    "Valute e unità di misura aumentano la complessità del reporting globale":
+      isIt ? "Molteplici valute e unità di misura aumentano la complessità del reporting globale"
+           : "Multiple currencies and units of measure increase global reporting complexity",
+
     // ── Slide 2 ──
     // Title (id=2): dynamic sentence
     "Erica combina una presenza globale con una maturità ESG ancora iniziale": slide2Title,
     // Stat cards — value shapes
     // Strip trailing descriptor word from dimUnit (e.g. "€mln ricavi" → "€mln")
     // so the card shows only the numeric value + monetary unit; the label below already carries the descriptor.
-    "€100 mln": `${data.revenue} ${data.dimUnit.replace(/\s+\S+$/, "")}`,
-    "500":      `${data.employees.toLocaleString()}`,
+    "€100 mln": `${fmtNum(data.revenue, isIt)} ${data.dimUnit.replace(/\s+\S+$/, "")}`,
+    "500":      `${fmtNum(data.employees, isIt)}`,
     "54":       `${totalSedi}`,
     "8":        `${activeGeoCount}`,
     // Revenue card sub-label: add year
@@ -1955,7 +2060,12 @@ async function _generateTemplatePptxImpl(data: SummaryPptxData): Promise<void> {
     // Slide 5: remap priority icons + nudge reputazione note downward
     if (i === 5) {
       xmlStr = remapSlide5Icons(xmlStr);
-      xmlStr = nudgeSlide5ReputazioneNote(xmlStr);
+      xmlStr = fixSlide5NotesRigid(xmlStr);
+      xmlStr = reduceSlide5NotesFont(xmlStr);
+      xmlStr = widenSlide5Box1(xmlStr);
+      xmlStr = moveSlide5Title5(xmlStr);
+      xmlStr = resizeSlide5Box6(xmlStr);
+      xmlStr = alignSlide5Box2(xmlStr);
     }
 
     // Slide 6: reduce title font, run text replacements, then write the needs list last
@@ -2025,8 +2135,8 @@ async function _generateTemplatePptxImpl(data: SummaryPptxData): Promise<void> {
     const inUsoCount4 = Object.values(fwChecks).filter(f => f.inUso).length;
     const slide4Title = inUsoCount4 === 0
       ? (isIt
-          ? `${resolvedCompanyName} non usa ancora framework ESG strutturati`
-          : `${resolvedCompanyName} does not yet use structured ESG frameworks`)
+          ? `${resolvedCompanyName} non usa altri standard oltre ESRS come framework ESG strutturati`
+          : `${resolvedCompanyName} does not use other standards beyond ESRS as structured ESG frameworks`)
       : inUsoCount4 === 1
         ? (isIt
             ? `${resolvedCompanyName} usa un unico framework ESG`

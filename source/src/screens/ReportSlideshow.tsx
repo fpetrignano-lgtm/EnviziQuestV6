@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { CommonProps } from "./types";
 import type { Priority } from "../types";
-import { SCENARIO_MODULES } from "../constants";
+import { SCENARIO_MODULES, fmtNum } from "../constants";
 
 type SiteGeoKey = "italia"|"europa"|"nordamerica"|"sudamerica"|"asia"|"africa"|"australia";
 type SiteRowKey = "uffici"|"ops"|"datacenter"|"altro";
@@ -135,8 +135,8 @@ function SlideCompany({ d }: { d: ReportData }) {
               {[
                 {label:isIt?"Settore":"Sector", value:d.sectorLabel},
                 {label:isIt?"Mercato":"Market", value:d.marketLabel},
-                {label:isIt?"Fatturato":"Revenue", value:`${d.revenue} ${d.dimUnit}`},
-                {label:isIt?"Dipendenti":"Employees", value:d.employees.toLocaleString()},
+                {label:isIt?"Fatturato":"Revenue", value:`${fmtNum(d.revenue,isIt)} ${d.dimUnit}`},
+                {label:isIt?"Dipendenti":"Employees", value:fmtNum(d.employees,isIt)},
               ].map(({label,value})=>(
                 <div key={label} style={{background:"#f0f7f3",borderRadius:10,padding:"10px 14px",borderLeft:"3px solid #1a7a4a"}}>
                   <div style={{fontSize:11,fontWeight:700,color:"#1a7a4a",letterSpacing:".08em",textTransform:"uppercase",marginBottom:4}}>{label}</div>
@@ -222,15 +222,15 @@ function Slide2({ d }: { d: ReportData }) {
             {isIt?`${d.companyName} ha avviato il percorso ESG`:`${d.companyName} has started its ESG journey`}
           </div>
           <div style={{fontSize:15,fontWeight:600,color:complexityBg,letterSpacing:".01em"}}>
-            {isIt?`Complessità di reporting per ${d.companyName}: ${complexityLabel}`:`Reporting complexity for ${d.companyName}: ${complexityLabel}`}
+            {isIt?`Impatto su complessità del reporting di ${d.companyName}: ${complexityLabel}`:`Impact on reporting complexity of ${d.companyName}: ${complexityLabel}`}
           </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"0 60px"}}>
           {/* left col */}
           <div style={{fontSize:17,color:"#1a3a2a",lineHeight:1.9,display:"flex",flexDirection:"column",gap:4}}>
             <p style={{margin:0}}>{isIt?`${d.companyName} è un ${d.sectorLabel.toLowerCase()} presente a livello ${d.marketLabel}.`:`${d.companyName} is a ${d.sectorLabel.toLowerCase()} operating at ${d.marketLabel} level.`}</p>
-            <p style={{margin:0}}>{isIt?`Nell'ultimo esercizio ha registrato ${d.revenue} ${d.dimUnit}.`:`In the last financial year it reported ${d.revenue} ${d.dimUnit}.`}</p>
-            <p style={{margin:0}}>{isIt?`L'organizzazione occupa ${d.employees.toLocaleString()} dipendenti.`:`The organisation employs ${d.employees.toLocaleString()} employees.`}</p>
+            <p style={{margin:0}}>{isIt?`Nell'ultimo esercizio ha registrato ${fmtNum(d.revenue,isIt)} ${d.dimUnit}.`:`In the last financial year it reported ${fmtNum(d.revenue,isIt)} ${d.dimUnit}.`}</p>
+            <p style={{margin:0}}>{isIt?`L'organizzazione occupa ${fmtNum(d.employees,isIt)} dipendenti.`:`The organisation employs ${fmtNum(d.employees,isIt)} employees.`}</p>
             <p style={{margin:0,color:d.csrdLabel.includes("non")||d.csrdLabel.includes("Not")?"#888":"#c05000"}}>{d.csrdLabel} {d.csrdSub}</p>
             <p style={{margin:"2px 0 0",fontSize:14}}>
               <span onClick={()=>window.open("https://www.consilium.europa.eu/en/press/press-releases/2026/02/24/council-signs-off-simplification-of-sustainability-reporting-and-due-diligence-requirements-to-boost-eu-competitiveness/","_blank")} style={{color:"#c05000",textDecoration:"underline",fontWeight:600,cursor:"pointer"}}>{isIt?"Consiglio dell'UE ↗":"EU Council ↗"}</span>

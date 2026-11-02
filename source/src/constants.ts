@@ -1,5 +1,10 @@
 import type { Priority, SectorKey, SectorDef, Profile, Screen } from "./types";
 
+// Separatore migliaia indipendente dalla lingua del browser: "." in italiano, "," in inglese.
+// (toLocaleString("it-IT") non raggruppa i numeri a 4 cifre: 9500 → "9500".)
+export const fmtNum = (n: number, isIt: boolean): string =>
+  String(n).replace(/\B(?=(\d{3})+(?!\d))/g, isIt ? "." : ",");
+
 export const defaultPriorities: Priority[] = ["customers","compliance","credit","efficiency","supply","reputation"];
 export const missionCatalog = [
   {icon:"DATA",it:"La fabbrica dei dati ESG",en:"The ESG data factory",itSub:"Baseline ESG e qualità dei dati",enSub:"ESG baseline and data quality",value:"DATA FOUNDATION"},

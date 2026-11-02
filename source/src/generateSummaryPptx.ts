@@ -1,4 +1,5 @@
 import PptxGenJS from "pptxgenjs";
+import { fmtNum } from "./constants";
 
 // ── palette ──────────────────────────────────────────────────────────────
 const BG      = "07110e";
@@ -72,8 +73,8 @@ function addSlide1(
   const tags = [
     sectorLabel,
     marketLabel,
-    `${revenue} ${dimUnit}`,
-    `${employees.toLocaleString()} ${isIt ? "dipendenti" : "employees"}`,
+    `${fmtNum(revenue, isIt)} ${dimUnit}`,
+    `${fmtNum(employees, isIt)} ${isIt ? "dipendenti" : "employees"}`,
     ...(plants > 0 ? [`${plants} ${isIt ? "stabilimenti" : "plants"}`] : []),
     ...(offices > 0 ? [`${offices} ${isIt ? "uffici" : "offices"}`] : []),
   ];

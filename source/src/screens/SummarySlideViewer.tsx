@@ -1,5 +1,6 @@
 import React, { useState, useRef } from "react";
 import type { SummaryPptxData } from "../generateSummaryPptx";
+import { fmtNum } from "../constants";
 
 interface Props {
   data: SummaryPptxData;
@@ -163,8 +164,8 @@ function Slide2({ data, isIt }: { data: SummaryPptxData; isIt: boolean }) {
               : ` is a ${data.sectorLabel} operating mainly in ${data.marketLabel}.`}
             {" "}
             {isIt
-              ? `Nell'anno ${year} ha registrato ${data.revenue} ${data.dimUnit} · ${data.employees.toLocaleString()} dipendenti.`
-              : `In ${year} it recorded ${data.revenue} ${data.dimUnit} · ${data.employees.toLocaleString()} employees.`}
+              ? `Nell'anno ${year} ha registrato ${fmtNum(data.revenue, true)} ${data.dimUnit} · ${fmtNum(data.employees, true)} dipendenti.`
+              : `In ${year} it recorded ${fmtNum(data.revenue, false)} ${data.dimUnit} · ${fmtNum(data.employees, false)} employees.`}
           </div>
 
           {/* CSRD card */}

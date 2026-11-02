@@ -38,8 +38,8 @@ export const PRIMARY_SCOPE_ITEMS: FunctionalScopeItem[] = [
   {
     id: "base-data-mgmt",
     num: 1,
-    title: "Base di gestione dei dati (o Base di misurazione a intervalli)",
-    titleEn: "Data Management Foundation (or Interval Metering Base)",
+    title: "Base di gestione dei dati",
+    titleEn: "Data Management Foundation",
     icon: "🏗️",
     shortDesc: "Amministrazione, SSO, gestione dati, reporting, dashboard e dati meteo giornalieri.",
     shortDescEn: "Administration, SSO, data management, reporting, dashboards and daily weather data.",
