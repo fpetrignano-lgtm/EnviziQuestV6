@@ -1032,7 +1032,7 @@ export default function Home(){
     setReportSlideIdx(0);
   };
 
-  if(screen==="ilTuoReport"&&profile)return <IlTuoReport language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} p10SlideIdx={p10SlideIdx} setP10SlideIdx={setP10SlideIdx} P10_SLIDES={P10_SLIDES} onDownloadPptx={(lang)=>generateTemplatePptx(buildPptxData(lang==="it"))} onRefreshAndView={refreshAndViewReport}/>;
+  if(screen==="ilTuoReport"&&profile)return <IlTuoReport language={language} profile={profile} setLanguage={setLanguage} setScreen={setScreen} reset={reset} goBack={goBack} renderTrustBar={renderTrustBar} p10SlideIdx={p10SlideIdx} setP10SlideIdx={setP10SlideIdx} P10_SLIDES={P10_SLIDES} onDownloadPptx={(lang)=>generateTemplatePptx(buildPptxData(lang==="it"))} onRefreshAndView={import.meta.env.PROD?undefined:refreshAndViewReport}/>;
 
 
 

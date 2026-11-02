@@ -95,8 +95,8 @@ export function IlTuoReport({language,profile,setLanguage,setScreen,reset,render
           </h1>
           <p style={{margin:0,fontSize:"clamp(17px,1.4vw,19.6px)",color:"#7db89a",lineHeight:1.4,maxWidth:"none"}}>
             {isIt
-              ? <>Questo documento raccoglie gli obiettivi ESG selezionati, le esigenze di gestione dati prioritarie e la roadmap delle sfide operative.<br/>Verrà aggiornato automaticamente, riflettendo le nuove valutazioni e i progressi raggiunti. Seleziona «Genera e visualizza» oppure «Scarica il documento di presentazione».</>
-              : <>This document consolidates the selected ESG objectives, priority data management needs and operational challenge roadmap.<br/>It will be updated automatically, reflecting new ratings and progress made. Select «Generate & view» or «Download the presentation».</>
+              ? <>Questo documento raccoglie gli obiettivi ESG selezionati, le esigenze di gestione dati prioritarie e la roadmap delle sfide operative.<br/>Verrà aggiornato automaticamente, riflettendo le nuove valutazioni e i progressi raggiunti. {onRefreshAndView?"Seleziona «Genera e visualizza» oppure «Scarica il documento di presentazione».":"Seleziona «Scarica Presentazione PPTX» per ottenere il documento di presentazione."}</>
+              : <>This document consolidates the selected ESG objectives, priority data management needs and operational challenge roadmap.<br/>It will be updated automatically, reflecting new ratings and progress made. {onRefreshAndView?"Select «Generate & view» or «Download the presentation».":"Select «Download Presentation PPTX» to get the presentation document."}</>
             }
           </p>
         </div>

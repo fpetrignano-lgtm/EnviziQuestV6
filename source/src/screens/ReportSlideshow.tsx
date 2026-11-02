@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useLayoutEffect } from "react";
 import type { CommonProps } from "./types";
 import type { Priority } from "../types";
 import { SCENARIO_MODULES, fmtNum } from "../constants";
@@ -75,7 +75,7 @@ function Slide1({ d }: { d: ReportData }) {
   const date = d.workshopDate ? new Date(d.workshopDate).toLocaleDateString(isIt?"it-IT":"en-GB",{year:"numeric",month:"long",day:"numeric"}) : "";
   return (
     <Slide>
-      <img src="./report-slide-1.png" alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>
+      <img src="./report-cover-bg.png" alt="" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>
       <div style={{position:"absolute",inset:0,background:"rgba(255,255,255,.18)"}}/>
       {/* Logo azienda */}
       {d.companyLogo && <img src={d.companyLogo} alt="logo" style={{position:"absolute",top:28,right:36,height:52,maxWidth:160,objectFit:"contain",background:"rgba(255,255,255,.85)",borderRadius:6,padding:"4px 8px"}}/>}
@@ -537,6 +537,19 @@ function Slide6({ d }: { d: ReportData }) {
 // ── Main slideshow component ──────────────────────────────────────────────────
 export function ReportSlideshow({ language, setLanguage, setScreen, reset, data }: Props) {
   const [idx, setIdx] = useState(0);
+  // Scala la slide 1280×720 sulle dimensioni LAYOUT dell'area (clientWidth/Height), che stanno
+  // nello stesso spazio del #root scalato in main.tsx: window.innerWidth/innerHeight no.
+  const areaRef = useRef<HTMLElement>(null);
+  const [fit, setFit] = useState(1);
+  useLayoutEffect(() => {
+    const el = areaRef.current;
+    if (!el) return;
+    const update = () => setFit(Math.min(el.clientWidth / 1280, el.clientHeight / 720) || 1);
+    update();
+    const ro = new ResizeObserver(update);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   const slides = [
     <Slide1 key={0} d={data}/>,
     <SlideCompany key="company" d={data}/>,
@@ -562,13 +575,10 @@ export function ReportSlideshow({ language, setLanguage, setScreen, reset, data 
       </header>
 
       {/* slide area — scala la slide 1280×720 nel viewport */}
-      <section style={{display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",background:"#111",minHeight:0}}>
+      <section ref={areaRef} style={{display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden",background:"#111",minHeight:0}}>
         <div style={{
           transformOrigin:"center center",
-          transform:`scale(${Math.min(
-            (typeof window !== "undefined" ? window.innerWidth : 1280) / 1280,
-            (typeof window !== "undefined" ? (window.innerHeight - 120) : 720) / 720
-          )})`,
+          transform:`scale(${fit})`,
           display:"flex",
         }}>
           {slides[idx]}
